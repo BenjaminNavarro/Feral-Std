@@ -27,7 +27,7 @@ if os.name == 'macos' {
 let builder_t = lang.struct(
 	is_dll = false,
 	compiler = default_compiler,
-	compiler_opts = ' -std=c++11 ',
+	compiler_opts = ' -std=c++11 -O2 ',
 	inc_dirs = ' ' + default_inc_dir + ' ',
 	lib_dirs = ' ' + default_lib_dir + ' ',
 	lib_flags = ' -lferalvm -lgmp ',
