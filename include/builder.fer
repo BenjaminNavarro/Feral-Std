@@ -68,51 +68,60 @@ let add_src in builder_t = fn(src) {
 	return self;
 };
 
-let build in builder_t = fn(output_file, dry_run = sys.args.find('dry')) {
+let perform in builder_t = fn(output_file, .kw_args) {
+	let dry_run = sys.args.find('dry');
+
 	let compiler_loc = os.exec_exists(self.compiler);
 	if compiler_loc.empty() {
 		io.cprintln('{p}could not find compiler {r}', self.compiler, ' {p}in {c}$PATH{0}');
 		return 1;
 	}
 
+	let main_src = '';
+
+	if kw_args['src'] != nil {
+		main_src = ' ' + kw_args['src'] + ' ';
+	}
+
 	if !dry_run && !fs.exists('build') { os.mkdir('build'); }
 
 	let out_file = output_file;
 	if self.is_dll { out_file = 'libferal' + out_file + shared_lib_out_ext; }
-	let cmd = compiler_loc + self.compiler_opts + self.inc_dirs + self.lib_dirs + self.lib_flags + self.srcs + '-o build/' + out_file;
+	let cmd = compiler_loc + self.compiler_opts + self.inc_dirs + self.lib_dirs + self.lib_flags + self.srcs + main_src + '-o build/' + out_file;
+
 	io.cprintln('Building ...');
 	if dry_run {
 		io.cprintln('{w}=> {c}', cmd, '{0}');
 		return 0;
 	}
 	io.cprintln('{w}=> {c}build/', out_file, '{0}');
-	return os.exec(cmd);
-};
 
-let install in builder_t = fn(.dirs, dry_run = sys.args.find('dry')) {
-	let something_to_install = false;
+	let res = os.exec(cmd);
+	if res != 0 { return res; }
+
+	# installation part
+	if !sys.args.find('install') { return res; }
+
 	io.cprintln('Installing ...');
 
-	let res = 0;
-
-	if dirs['inc_dirs'] != nil {
-		something_to_install = true;
-		io.cprintln('{w}=> {c}', dirs['inc_dirs'], ' {0}-> {c}', sys.inc_load_loc, '/ {0}...');
-		if !dry_run { res = os.copy(dirs['inc_dirs'], sys.inc_load_loc + '/'); }
-		if res != 0 { return res; }
+	let inc_src = 'include/*';
+	if kw_args['inc'] != nil {
+		inc_src = kw_args['inc'];
 	}
+	io.cprintln('{w}=> {c}', inc_src, ' {0}-> {c}', sys.inc_load_loc, '/ {0}...');
+	if !dry_run { res = os.copy(inc_src, sys.inc_load_loc + '/'); }
+	if res != 0 { return res; }
 
-	if dirs['lib_dirs'] != nil {
-		something_to_install = true;
-		io.cprintln('{w}=> {c}', dirs['lib_dirs'], ' {0}-> {c}', sys.dll_load_loc, '/ {0}...');
-		if !dry_run { res = os.copy(dirs['lib_dirs'], sys.dll_load_loc + '/'); }
-		if res != 0 { return res; }
+	let lib_src = 'build/*';
+	if kw_args['lib'] != nil {
+		lib_src = kw_args['lib'];
 	}
+	io.cprintln('{w}=> {c}', lib_src, ' {0}-> {c}', sys.dll_load_loc, '/ {0}...');
+	if !dry_run { res = os.copy(lib_src, sys.dll_load_loc + '/'); }
+	if res != 0 { return res; }
 
-	if !dry_run && something_to_install {
+	if !dry_run {
 		io.cprintln('Installation successful!');
-	} else {
-		io.cprintln('Nothing to install!');
 	}
 
 	return res;
