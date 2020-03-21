@@ -142,6 +142,14 @@ var_base_t * str_at( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_str_t >( std::string( 1, str[ pos ] ) );
 }
 
+var_base_t * str_trim( vm_state_t & vm, const fn_data_t & fd )
+{
+	std::string & str = STR( fd.args[ 0 ] )->get();
+	while( str.size() > 0 && isspace( str.back() ) ) { str.pop_back(); }
+	while( str.size() > 0 && isspace( str.front() ) ) { str.erase( str.begin() ); }
+	return fd.args[ 0 ];
+}
+
 var_base_t * str_split( vm_state_t & vm, const fn_data_t & fd )
 {
 	var_str_t * str = STR( fd.args[ 0 ] );
@@ -176,6 +184,7 @@ INIT_MODULE( str )
 	vm.add_typefn( VT_STR,    "at", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_at }, true, 0, 0 ), false );
 	vm.add_typefn( VT_STR,    "[]", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_at }, true, 0, 0 ), false );
 
+	vm.add_typefn( VT_STR,  "trim", new var_fn_t( src_name, "", "",  {}, {}, { .native = str_trim  }, true, 0, 0 ), false );
 	vm.add_typefn( VT_STR, "split", new var_fn_t( src_name, "", ".", {}, {}, { .native = str_split }, true, 0, 0 ), false );
 
 	return true;
