@@ -16,6 +16,7 @@
 //////////////////////////////////////////////////////////// Enum values //////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: use this?
 enum FileErrors
 {
 	FILE_OK,
@@ -28,6 +29,7 @@ enum FileErrors
 
 // initialize this in the init_utils function
 static int file_typeid;
+static int file_iterable_typeid;
 
 class var_file_t : public var_base_t
 {
@@ -70,6 +72,56 @@ void var_file_t::set( var_base_t * from )
 
 FILE * const var_file_t::get() { return m_file; }
 
+class var_file_iterable_t : public var_base_t
+{
+	var_file_t * m_file;
+public:
+	var_file_iterable_t( var_file_t * file, const size_t & src_id, const size_t & idx );
+	~var_file_iterable_t();
+
+	var_base_t * copy( const size_t & src_id, const size_t & idx );
+	void set( var_base_t * from );
+
+	bool next( var_base_t * & val );
+};
+#define FILE_ITERABLE( x ) static_cast< var_file_iterable_t * >( x )
+
+var_file_iterable_t::var_file_iterable_t( var_file_t * file, const size_t & src_id, const size_t & idx )
+	: var_base_t( file_iterable_typeid, src_id, idx ), m_file( file )
+{
+	var_iref( m_file );
+}
+var_file_iterable_t::~var_file_iterable_t() { var_dref( m_file ); }
+
+var_base_t * var_file_iterable_t::copy( const size_t & src_id, const size_t & idx )
+{
+	return new var_file_iterable_t( m_file, src_id, idx );
+}
+void var_file_iterable_t::set( var_base_t * from )
+{
+	var_dref( m_file );
+	m_file = FILE_ITERABLE( from )->m_file;
+	var_iref( m_file );
+}
+
+bool var_file_iterable_t::next( var_base_t * & val )
+{
+	char * line_ptr = NULL;
+	size_t len = 0;
+	ssize_t read = 0;
+
+	if( ( read = getline( & line_ptr, & len, m_file->get() ) ) != -1 ) {
+		std::string line = line_ptr;
+		free( line_ptr );
+		while( line.back() == '\n' ) line.pop_back();
+		while( line.back() == '\r' ) line.pop_back();
+		val = make< var_str_t >( line );
+		return true;
+	}
+	if( line_ptr ) free( line_ptr );
+	return false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////// Functions /////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +160,7 @@ var_base_t * fs_open( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_file_t >( file );
 }
 
-var_base_t * fs_file_readlines( vm_state_t & vm, const fn_data_t & fd )
+var_base_t * fs_file_all_lines( vm_state_t & vm, const fn_data_t & fd )
 {
 	srcfile_t * src = vm.src_stack.back()->src();
 	FILE * const file = FILE( fd.args[ 0 ] )->get();
@@ -129,19 +181,42 @@ var_base_t * fs_file_readlines( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_vec_t >( lines );
 }
 
+var_base_t * fs_file_readlines( vm_state_t & vm, const fn_data_t & fd )
+{
+	srcfile_t * src = vm.src_stack.back()->src();
+	return make< var_file_iterable_t >( FILE( fd.args[ 0 ] ) );
+}
+
+var_base_t * fs_file_iterable_next( vm_state_t & vm, const fn_data_t & fd )
+{
+	var_file_iterable_t * it = FILE_ITERABLE( fd.args[ 0 ] );
+	var_base_t * res = nullptr;
+	if( !it->next( res ) ) return vm.nil;
+	return res;
+}
+
+// TODO:
+// var_base_t * fs_file_seek( vm_state_t & vm, const fn_data_t & fd )
+// {
+
+// }
+
 INIT_MODULE( fs )
 {
 	var_src_t * src = vm.src_stack.back();
 	const std::string & src_name = src->src()->path();
 
-	// get the type id for file type (register_type)
+	// get the type id for file and file_iterable type (register_type)
 	file_typeid = vm.register_new_type( "var_file_t", "file_t" );
+	file_iterable_typeid = vm.register_new_type( "var_file_iterable_t", "file_iterable_t" );
 
 	src->add_nativefn( "exists", fs_exists, { "" } );
-
 	src->add_nativefn( "open_native", fs_open, { "", "" }, {} );
 
+	vm.add_typefn( file_typeid, "alllines", new var_fn_t( src_name, {}, {}, { .native = fs_file_all_lines }, 0, 0 ), false );
 	vm.add_typefn( file_typeid, "readlines", new var_fn_t( src_name, {}, {}, { .native = fs_file_readlines }, 0, 0 ), false );
+
+	vm.add_typefn( file_iterable_typeid, "next", new var_fn_t( src_name, {}, {}, { .native = fs_file_iterable_next }, 0, 0 ), false );
 
 	return true;
 }
