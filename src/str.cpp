@@ -153,15 +153,16 @@ var_base_t * str_trim( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * str_split( vm_state_t & vm, const fn_data_t & fd )
 {
 	var_str_t * str = STR( fd.args[ 0 ] );
-	char delim = ':';
-	if( fd.args.size() > 1 ) {
-		if( fd.args[ 1 ]->type() != VT_STR ) {
-			vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for delimiter, found: %s",
-							  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
-			return nullptr;
-		}
-		if( STR( fd.args[ 1 ] )->get().size() > 0 ) STR( fd.args[ 1 ] )->get()[ 0 ];
+	if( fd.args[ 1 ]->type() != VT_STR ) {
+		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for delimiter, found: %s",
+						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
 	}
+	if( STR( fd.args[ 1 ] )->get().size() == 0 ) {
+		vm.src_stack.back()->src()->fail( fd.idx, "found empty delimiter for string split" );
+		return nullptr;
+	}
+	char delim = STR( fd.args[ 1 ] )->get()[ 0 ];
 	std::vector< var_base_t * > res_vec = _str_split( str->get(), delim, fd.src_id, fd.src_id );
 	return make< var_vec_t >( res_vec );
 }
@@ -184,8 +185,8 @@ INIT_MODULE( str )
 	vm.add_typefn( VT_STR,    "at", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_at }, true, 0, 0 ), false );
 	vm.add_typefn( VT_STR,    "[]", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_at }, true, 0, 0 ), false );
 
-	vm.add_typefn( VT_STR,  "trim", new var_fn_t( src_name, "", "",  {}, {}, { .native = str_trim  }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR, "split", new var_fn_t( src_name, "", ".", {}, {}, { .native = str_split }, true, 0, 0 ), false );
+	vm.add_typefn( VT_STR,  "trim", new var_fn_t( src_name, "", "", {}, {}, { .native = str_trim }, true, 0, 0 ), false );
+	vm.add_typefn( VT_STR, "split_native", new var_fn_t( src_name, "", "", { "" }, {}, { .native = str_split }, true, 0, 0 ), false );
 
 	return true;
 }

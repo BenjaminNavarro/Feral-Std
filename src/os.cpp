@@ -56,7 +56,7 @@ var_base_t * set_env( vm_state_t & vm, const fn_data_t & fd )
 						  vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
-	if( fd.args.size() > 3 && fd.args[ 3 ]->type() != VT_BOOL ) {
+	if( fd.args[ 3 ]->type() != VT_BOOL ) {
 		vm.src_stack.back()->src()->fail( fd.idx, "expected boolean argument for overwrite existing env variable, found: %s",
 						  vm.type_name( fd.args[ 3 ]->type() ).c_str() );
 		return nullptr;
@@ -64,10 +64,7 @@ var_base_t * set_env( vm_state_t & vm, const fn_data_t & fd )
 	std::string var = STR( fd.args[ 1 ] )->get();
 	std::string val = STR( fd.args[ 2 ] )->get();
 
-	bool overwrite = false;
-	if( fd.args.size() > 3 ) {
-		overwrite = BOOL( fd.args[ 3 ] )->get();
-	}
+	bool overwrite = BOOL( fd.args[ 3 ] )->get();
 	return make< var_int_t >( setenv( var.c_str(), val.c_str(), overwrite ) );
 }
 
@@ -243,7 +240,7 @@ INIT_MODULE( os )
 	src->add_nativefn( "sleep", sleep_custom, { "" } );
 
 	src->add_nativefn( "get_env", get_env, { "" } );
-	src->add_nativefn( "set_env", set_env, { "", "" }, {}, true );
+	src->add_nativefn( "set_env_native", set_env, { "", "", "" } );
 
 	src->add_nativefn( "exec", exec_custom, { "" } );
 	src->add_nativefn( "install", install, { "", "" } );

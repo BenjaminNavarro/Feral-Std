@@ -4,6 +4,10 @@ let str = import('std/str');
 let vec = import('std/vec');
 let fs = import('std/fs');
 
+let set_env = fn(var, val, overwrite = false) {
+	return set_env_native(var, val, overwrite);
+};
+
 # OS name, current possible values:
 # android
 # linux

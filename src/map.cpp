@@ -91,10 +91,10 @@ INIT_MODULE( map )
 	src->add_nativefn( "new", map_new, {}, {}, true );
 
 	vm.add_typefn( VT_MAP, "insert", new var_fn_t( src_name, "",  "", { "", "" }, {}, { .native = map_insert }, true, 0, 0 ), false );
-	vm.add_typefn( VT_MAP, "erase", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = map_erase }, true, 0, 0 ), false );
-	vm.add_typefn( VT_MAP, "get", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = map_get }, true, 0, 0 ), false );
-	vm.add_typefn( VT_MAP,  "[]", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = map_get }, true, 0, 0 ), false );
-	vm.add_typefn( VT_MAP,  "find", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = map_find }, true, 0, 0 ), false );
+	vm.add_typefn( VT_MAP,  "erase", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = map_erase }, true, 0, 0 ), false );
+	vm.add_typefn( VT_MAP,    "get", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = map_get }, true, 0, 0 ), false );
+	vm.add_typefn( VT_MAP,     "[]", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = map_get }, true, 0, 0 ), false );
+	vm.add_typefn( VT_MAP,   "find", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = map_find }, true, 0, 0 ), false );
 
 	return true;
 }

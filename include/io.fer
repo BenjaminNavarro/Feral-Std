@@ -1,1 +1,5 @@
 mload('std/io');
+
+let scan = fn(prompt = '') {
+	return scan_native(prompt);
+};

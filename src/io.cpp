@@ -43,13 +43,12 @@ var_base_t * println( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * scan( vm_state_t & vm, const fn_data_t & fd )
 {
 	srcfile_t * src = vm.src_stack.back()->src();
-	if( fd.args.size() > 1 ) {
-		if( fd.args[ 1 ]->type() != VT_STR ) {
-			src->fail( fd.args[ 1 ]->idx(), "expected string data for input prompt" );
-			return nullptr;
-		}
-		fprintf( stdout, "%s", STR( fd.args[ 1 ] )->get().c_str() );
+	if( fd.args[ 1 ]->type() != VT_STR ) {
+		src->fail( fd.args[ 1 ]->idx(), "expected string data for input prompt, found: %s",
+			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
 	}
+	fprintf( stdout, "%s", STR( fd.args[ 1 ] )->get().c_str() );
 
 	char str[ MAX_C_STR_LEN ];
 	fgets( str, MAX_C_STR_LEN, stdin );
@@ -87,7 +86,7 @@ INIT_MODULE( io )
 	const std::string & src_name = src->src()->path();
 	src->add_nativefn( "print", print, {}, {}, true );
 	src->add_nativefn( "println", println, {}, {}, true );
-	src->add_nativefn( "scan", scan, { "" }, {}, true );
+	src->add_nativefn( "scan_native", scan, { "" } );
 	src->add_nativefn( "cprintln", col_println, {}, {}, true );
 	src->add_nativefn( "flushout", flushout );
 	return true;
