@@ -162,7 +162,6 @@ var_base_t * fs_open( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_file_all_lines( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
 	FILE * const file = FILE( fd.args[ 0 ] )->get();
 	char * line_ptr = NULL;
 	size_t len = 0;
@@ -181,6 +180,25 @@ var_base_t * fs_file_all_lines( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_vec_t >( lines );
 }
 
+var_base_t * fs_file_seek( vm_state_t & vm, const fn_data_t & fd )
+{
+	srcfile_t * src = vm.src_stack.back()->src();
+	FILE * const file = FILE( fd.args[ 0 ] )->get();
+	if( fd.args[ 1 ]->type() != VT_INT ) {
+		src->fail( fd.idx, "expected int argument for file seek position, found: %s",
+			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
+	}
+	if( fd.args[ 2 ]->type() != VT_INT ) {
+		src->fail( fd.idx, "expected int argument for file seek origin, found: %s",
+			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		return nullptr;
+	}
+	long pos = INT( fd.args[ 1 ] )->get().get_si();
+	int origin = INT( fd.args[ 2 ] )->get().get_si();
+	return make< var_int_t >( fseek( file, pos, origin ) );
+}
+
 var_base_t * fs_file_readlines( vm_state_t & vm, const fn_data_t & fd )
 {
 	srcfile_t * src = vm.src_stack.back()->src();
@@ -194,12 +212,6 @@ var_base_t * fs_file_iterable_next( vm_state_t & vm, const fn_data_t & fd )
 	if( !it->next( res ) ) return vm.nil;
 	return res;
 }
-
-// TODO:
-// var_base_t * fs_file_seek( vm_state_t & vm, const fn_data_t & fd )
-// {
-
-// }
 
 INIT_MODULE( fs )
 {
@@ -216,7 +228,14 @@ INIT_MODULE( fs )
 	vm.add_typefn( file_typeid, "alllines", new var_fn_t( src_name, {}, {}, { .native = fs_file_all_lines }, 0, 0 ), false );
 	vm.add_typefn( file_typeid, "readlines", new var_fn_t( src_name, {}, {}, { .native = fs_file_readlines }, 0, 0 ), false );
 
+	vm.add_typefn( file_typeid, "seek", new var_fn_t( src_name, { "", "" }, {}, { .native = fs_file_seek }, 0, 0 ), false );
+
 	vm.add_typefn( file_iterable_typeid, "next", new var_fn_t( src_name, {}, {}, { .native = fs_file_iterable_next }, 0, 0 ), false );
+
+	// constants
+	src->add_nativevar( "SEEK_SET", make< var_int_t >( SEEK_SET ) );
+	src->add_nativevar( "SEEK_CUR", make< var_int_t >( SEEK_CUR ) );
+	src->add_nativevar( "SEEK_END", make< var_int_t >( SEEK_END ) );
 
 	return true;
 }
