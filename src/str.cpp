@@ -167,6 +167,21 @@ var_base_t * str_split( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_vec_t >( res_vec );
 }
 
+// character (str[0]) to its ASCII (int)
+var_base_t * c_to_i( vm_state_t & vm, const fn_data_t & fd )
+{
+	const std::string & str = STR( fd.args[ 0 ] )->get();
+	if( str.empty() ) return make< var_int_t >( 0 );
+	return make< var_int_t >( str[ 0 ] );
+}
+
+// ASCII (int) to character (str)
+var_base_t * i_to_c( vm_state_t & vm, const fn_data_t & fd )
+{
+	const mpz_class & num = INT( fd.args[ 0 ] )->get();
+	return make< var_str_t >( std::string( 1, ( char )num.get_si() ) );
+}
+
 INIT_MODULE( str )
 {
 	var_src_t * src = vm.src_stack.back();
@@ -187,6 +202,9 @@ INIT_MODULE( str )
 
 	vm.add_typefn( VT_STR,  "trim", new var_fn_t( src_name, "", "", {}, {}, { .native = str_trim }, true, 0, 0 ), false );
 	vm.add_typefn( VT_STR, "split_native", new var_fn_t( src_name, "", "", { "" }, {}, { .native = str_split }, true, 0, 0 ), false );
+
+	vm.add_typefn( VT_STR, "c_to_i", new var_fn_t( src_name, "", "", {}, {}, { .native = c_to_i }, true, 0, 0 ), false );
+	vm.add_typefn( VT_INT, "i_to_c", new var_fn_t( src_name, "", "", {}, {}, { .native = i_to_c }, true, 0, 0 ), false );
 
 	return true;
 }

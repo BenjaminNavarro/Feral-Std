@@ -53,8 +53,29 @@ var_base_t * scan( vm_state_t & vm, const fn_data_t & fd )
 	char str[ MAX_C_STR_LEN ];
 	fgets( str, MAX_C_STR_LEN, stdin );
 	std::string res( str );
-	while( res.back() == '\n' ) res.pop_back();
-	while( res.back() == '\r' ) res.pop_back();
+
+	if( res.back() == '\r' ) res.pop_back();
+	if( res.back() == '\n' ) res.pop_back();
+
+	return make< var_str_t >( res );
+}
+
+var_base_t * scaneof( vm_state_t & vm, const fn_data_t & fd )
+{
+	srcfile_t * src = vm.src_stack.back()->src();
+	if( fd.args[ 1 ]->type() != VT_STR ) {
+		src->fail( fd.args[ 1 ]->idx(), "expected string data for input prompt, found: %s",
+			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
+	}
+	fprintf( stdout, "%s", STR( fd.args[ 1 ] )->get().c_str() );
+
+	std::string line, res;
+
+	while( std::getline( std::cin, line ) ) res += line;
+
+	if( res.back() == '\r' ) res.pop_back();
+	if( res.back() == '\n' ) res.pop_back();
 
 	return make< var_str_t >( res );
 }
@@ -87,6 +108,7 @@ INIT_MODULE( io )
 	src->add_nativefn( "print", print, {}, {}, true );
 	src->add_nativefn( "println", println, {}, {}, true );
 	src->add_nativefn( "scan_native", scan, { "" } );
+	src->add_nativefn( "scaneof_native", scaneof, { "" } );
 	src->add_nativefn( "cprintln", col_println, {}, {}, true );
 	src->add_nativefn( "flushout", flushout );
 	return true;
