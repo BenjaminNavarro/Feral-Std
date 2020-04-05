@@ -42,7 +42,7 @@ if(NOT MPFR_FOUND)
 endif()
 find_library(FERALVM_LIBRARY feralvm PATH_SUFFIXES "feral" REQUIRED)
 if(NOT FERALVM_LIBRARY)
-	message(FATAL_ERROR "Feral VM is required but missing ${INCLUDE_INSTALL_DIR}")
+	message(FATAL_ERROR "Feral VM is required but missing, looked in: ${INCLUDE_INSTALL_DIR}")
 endif()
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
