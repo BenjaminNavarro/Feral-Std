@@ -23,33 +23,40 @@ static int file_iterable_typeid;
 class var_file_t : public var_base_t
 {
 	FILE * m_file;
+	std::string m_mode;
 	bool m_owner;
 public:
-	var_file_t( FILE * const file, const size_t & src_id, const size_t & idx, const bool owner = true );
+	var_file_t( FILE * const file, const std::string & mode, const size_t & src_id, const size_t & idx, const bool owner = true );
 	~var_file_t();
 
-	void * get_data();
+	void * get_data( const size_t & idx );
 
 	var_base_t * copy( const size_t & src_id, const size_t & idx );
 	void set( var_base_t * from );
 
-	FILE * const get();
+	inline FILE * const get() const { return m_file; }
+	inline const std::string & mode() const { return m_mode; }
 };
 #define FILE( x ) static_cast< var_file_t * >( x )
 
-var_file_t::var_file_t( FILE * const file, const size_t & src_id, const size_t & idx, const bool owner )
-	: var_base_t( file_typeid, src_id, idx ), m_file( file ), m_owner( owner )
+var_file_t::var_file_t( FILE * const file, const std::string & mode, const size_t & src_id, const size_t & idx, const bool owner )
+	: var_base_t( file_typeid, src_id, idx ), m_file( file ), m_mode( mode ), m_owner( owner )
 {}
 var_file_t::~var_file_t()
 {
 	if( m_owner ) fclose( m_file );
 }
 
-void * var_file_t::get_data() { return m_file; }
+void * var_file_t::get_data( const size_t & idx )
+{
+	if( idx == 0 ) return m_file;
+	else if( idx == 1 ) return & m_mode;
+	return nullptr;
+}
 
 var_base_t * var_file_t::copy( const size_t & src_id, const size_t & idx )
 {
-	return new var_file_t( m_file, src_id, idx, false );
+	return new var_file_t( m_file, m_mode, src_id, idx, false );
 }
 
 void var_file_t::set( var_base_t * from )
@@ -58,8 +65,6 @@ void var_file_t::set( var_base_t * from )
 	m_owner = false;
 	m_file = FILE( from )->get();
 }
-
-FILE * const var_file_t::get() { return m_file; }
 
 class var_file_iterable_t : public var_base_t
 {
@@ -146,7 +151,7 @@ var_base_t * fs_open( vm_state_t & vm, const fn_data_t & fd )
 			   file_name.c_str(), mode.c_str() );
 		return nullptr;
 	}
-	return make< var_file_t >( file );
+	return make< var_file_t >( file, mode );
 }
 
 var_base_t * fs_file_all_lines( vm_state_t & vm, const fn_data_t & fd )
