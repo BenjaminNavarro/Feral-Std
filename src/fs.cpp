@@ -7,10 +7,23 @@
 	before using or altering the project.
 */
 
+#include <regex>
 
 #include <unistd.h>
+#include <dirent.h>
+#include <sys/wait.h>
 
 #include <feral/VM/VM.hpp>
+
+enum WalkEntry {
+	FILES = 1 << 0,
+	DIRS = 1 << 1,
+	RECURSE = 1 << 2,
+};
+
+void get_entries_internal( const std::string & dir_str, std::vector< var_base_t * > & v,
+			   const size_t & flags, const int src_id, const int idx,
+			   const std::regex & regex );
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////// Classes //////////////////////////////////////////////////////////////////
@@ -195,7 +208,6 @@ var_base_t * fs_file_seek( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_file_readlines( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
 	return make< var_file_iterable_t >( FILE( fd.args[ 0 ] ) );
 }
 
@@ -205,6 +217,34 @@ var_base_t * fs_file_iterable_next( vm_state_t & vm, const fn_data_t & fd )
 	var_base_t * res = nullptr;
 	if( !it->next( res ) ) return vm.nil;
 	return res;
+}
+
+var_base_t * fs_walkdir( vm_state_t & vm, const fn_data_t & fd )
+{
+	srcfile_t * src = vm.src_stack.back()->src();
+	std::vector< var_base_t * > v;
+	if( fd.args[ 1 ]->type() != VT_STR ) {
+		src->fail( fd.idx, "expected string argument for directory name, found: %s",
+			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
+	}
+	if( fd.args[ 2 ]->type() != VT_INT ) {
+		src->fail( fd.idx, "expected int argument for walk mode, found: %s",
+			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		return nullptr;
+	}
+	if( fd.args[ 3 ]->type() != VT_STR ) {
+		src->fail( fd.idx, "expected string argument for file regex, found: %s",
+			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		return nullptr;
+	}
+	std::string dir_str = STR( fd.args[ 1 ] )->get();
+	size_t flags = INT( fd.args[ 2 ] )->get().get_ui();
+	std::string regex_str = STR( fd.args[ 3 ] )->get();
+	std::regex regex( regex_str );
+	if( dir_str.size() > 0 && dir_str.back() != '/' ) dir_str += "/";
+	get_entries_internal( dir_str, v, flags, fd.src_id, fd.idx, regex );
+	return make< var_vec_t >( v );
 }
 
 INIT_MODULE( fs )
@@ -218,6 +258,7 @@ INIT_MODULE( fs )
 
 	src->add_nativefn( "exists", fs_exists, { "" } );
 	src->add_nativefn( "open_native", fs_open, { "", "" }, {} );
+	src->add_nativefn( "walkdir_native", fs_walkdir, { "", "", "" }, {} );
 
 	vm.add_typefn( file_typeid, "alllines", new var_fn_t( src_name, {}, {}, { .native = fs_file_all_lines }, 0, 0 ), false );
 	vm.add_typefn( file_typeid, "readlines", new var_fn_t( src_name, {}, {}, { .native = fs_file_readlines }, 0, 0 ), false );
@@ -227,9 +268,43 @@ INIT_MODULE( fs )
 	vm.add_typefn( file_iterable_typeid, "next", new var_fn_t( src_name, {}, {}, { .native = fs_file_iterable_next }, 0, 0 ), false );
 
 	// constants
+	src->add_nativevar( "WALK_FILES", make< var_int_t >( WalkEntry::FILES ) );
+	src->add_nativevar( "WALK_DIRS", make< var_int_t >( WalkEntry::DIRS ) );
+	src->add_nativevar( "WALK_RECURSE", make< var_int_t >( WalkEntry::RECURSE ) );
+
 	src->add_nativevar( "SEEK_SET", make< var_int_t >( SEEK_SET ) );
 	src->add_nativevar( "SEEK_CUR", make< var_int_t >( SEEK_CUR ) );
 	src->add_nativevar( "SEEK_END", make< var_int_t >( SEEK_END ) );
 
 	return true;
+}
+
+
+void get_entries_internal( const std::string & dir_str, std::vector< var_base_t * > & v,
+			   const size_t & flags, const int src_id, const int idx,
+			   const std::regex & regex )
+{
+	DIR * dir;
+	struct dirent * ent;
+	if( ( dir = opendir( dir_str.c_str() ) ) == NULL ) return;
+
+	while( ( ent = readdir( dir ) ) != NULL ) {
+		if( strcmp( ent->d_name, "." ) == 0 || strcmp( ent->d_name, ".." ) == 0 ) continue;
+		std::string entry = dir_str + ent->d_name;
+		if( ( !( flags & WalkEntry::RECURSE ) || ent->d_type != DT_DIR ) && !std::regex_match( entry, regex ) ) {
+			continue;
+		}
+		if( ent->d_type == DT_DIR ) {
+			if( flags & WalkEntry::RECURSE ) {
+				get_entries_internal( entry + "/", v, flags, src_id, idx, regex );
+			} else if( flags & WalkEntry::DIRS ) {
+				v.push_back( new var_str_t( entry, src_id, idx ) );
+			}
+			continue;
+		}
+		if( flags & WalkEntry::FILES || flags & WalkEntry::RECURSE ) {
+			v.push_back( new var_str_t( entry, src_id, idx ) );
+		}
+	}
+	closedir( dir );
 }

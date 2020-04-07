@@ -80,6 +80,20 @@ var_base_t * scaneof( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_str_t >( res );
 }
 
+var_base_t * col_print( vm_state_t & vm, const fn_data_t & fd )
+{
+	srcfile_t * src = vm.src_stack.back()->src();
+	for( size_t i = 1; i < fd.args.size(); ++i ) {
+		std::string str;
+		if( !fd.args[ i ]->to_str( vm, str, fd.src_id, fd.idx ) ) {
+			return nullptr;
+		}
+		apply_colors( str );
+		fprintf( stdout, "%s", str.c_str() );
+	}
+	return vm.nil;
+}
+
 var_base_t * col_println( vm_state_t & vm, const fn_data_t & fd )
 {
 	srcfile_t * src = vm.src_stack.back()->src();
@@ -109,6 +123,7 @@ INIT_MODULE( io )
 	src->add_nativefn( "println", println, {}, {}, true );
 	src->add_nativefn( "scan_native", scan, { "" } );
 	src->add_nativefn( "scaneof_native", scaneof, { "" } );
+	src->add_nativefn( "cprint", col_print, {}, {}, true );
 	src->add_nativefn( "cprintln", col_println, {}, {}, true );
 	src->add_nativefn( "flushout", flushout );
 	return true;
