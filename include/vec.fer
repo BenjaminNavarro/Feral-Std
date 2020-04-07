@@ -1,5 +1,14 @@
 mload('std/vec');
 
+let '==' in vec_t = fn(other) {
+	if self.len() != other.len() { return false; }
+	let len = self.len();
+	for let i = 0; i < len; ++i {
+		if self[i] != other[i] { return false; }
+	}
+	return true;
+};
+
 # stores in the type - NOT object
 let find in vec_t = fn(obj) {
 	for data in self.each() {
