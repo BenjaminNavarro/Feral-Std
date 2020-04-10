@@ -29,55 +29,8 @@ void get_entries_internal( const std::string & dir_str, std::vector< var_base_t 
 ///////////////////////////////////////////////////////////// Classes //////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// initialize this in the init_utils function
-static int file_typeid;
+// initialize this in the init_fs function
 static int file_iterable_typeid;
-
-class var_file_t : public var_base_t
-{
-	FILE * m_file;
-	std::string m_mode;
-	bool m_owner;
-public:
-	var_file_t( FILE * const file, const std::string & mode, const size_t & src_id, const size_t & idx, const bool owner = true );
-	~var_file_t();
-
-	void * get_data( const size_t & idx );
-
-	var_base_t * copy( const size_t & src_id, const size_t & idx );
-	void set( var_base_t * from );
-
-	inline FILE * const get() const { return m_file; }
-	inline const std::string & mode() const { return m_mode; }
-};
-#define FILE( x ) static_cast< var_file_t * >( x )
-
-var_file_t::var_file_t( FILE * const file, const std::string & mode, const size_t & src_id, const size_t & idx, const bool owner )
-	: var_base_t( file_typeid, src_id, idx ), m_file( file ), m_mode( mode ), m_owner( owner )
-{}
-var_file_t::~var_file_t()
-{
-	if( m_owner ) fclose( m_file );
-}
-
-void * var_file_t::get_data( const size_t & idx )
-{
-	if( idx == 0 ) return m_file;
-	else if( idx == 1 ) return & m_mode;
-	return nullptr;
-}
-
-var_base_t * var_file_t::copy( const size_t & src_id, const size_t & idx )
-{
-	return new var_file_t( m_file, m_mode, src_id, idx, false );
-}
-
-void var_file_t::set( var_base_t * from )
-{
-	if( m_owner ) fclose( m_file );
-	m_owner = false;
-	m_file = FILE( from )->get();
-}
 
 class var_file_iterable_t : public var_base_t
 {
@@ -252,18 +205,17 @@ INIT_MODULE( fs )
 	var_src_t * src = vm.src_stack.back();
 	const std::string & src_name = src->src()->path();
 
-	// get the type id for file and file_iterable type (register_type)
-	file_typeid = vm.register_new_type( "var_file_t", "file_t" );
+	// get the type id for file_iterable type (register_type)
 	file_iterable_typeid = vm.register_new_type( "var_file_iterable_t", "file_iterable_t" );
 
 	src->add_nativefn( "exists", fs_exists, { "" } );
 	src->add_nativefn( "open_native", fs_open, { "", "" }, {} );
 	src->add_nativefn( "walkdir_native", fs_walkdir, { "", "", "" }, {} );
 
-	vm.add_typefn( file_typeid, "alllines", new var_fn_t( src_name, {}, {}, { .native = fs_file_all_lines }, 0, 0 ), false );
-	vm.add_typefn( file_typeid, "readlines", new var_fn_t( src_name, {}, {}, { .native = fs_file_readlines }, 0, 0 ), false );
+	vm.add_typefn( VT_FILE, "alllines", new var_fn_t( src_name, {}, {}, { .native = fs_file_all_lines }, 0, 0 ), false );
+	vm.add_typefn( VT_FILE, "readlines", new var_fn_t( src_name, {}, {}, { .native = fs_file_readlines }, 0, 0 ), false );
 
-	vm.add_typefn( file_typeid, "seek", new var_fn_t( src_name, { "", "" }, {}, { .native = fs_file_seek }, 0, 0 ), false );
+	vm.add_typefn( VT_FILE, "seek", new var_fn_t( src_name, { "", "" }, {}, { .native = fs_file_seek }, 0, 0 ), false );
 
 	vm.add_typefn( file_iterable_typeid, "next", new var_fn_t( src_name, {}, {}, { .native = fs_file_iterable_next }, 0, 0 ), false );
 
