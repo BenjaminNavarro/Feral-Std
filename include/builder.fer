@@ -104,21 +104,25 @@ let perform in builder_t = fn(output_file, .kw_args) {
 
 	io.cprintln('Installing ...');
 
-	let inc_src = 'include/*';
+	let inc_src = 'include';
 	if kw_args['inc'] != nil {
 		inc_src = kw_args['inc'];
 	}
-	io.cprintln('{w}=> {c}', inc_src, ' {0}-> {c}', sys.inc_load_loc, '/ {0}...');
-	if !dry_run { res = os.copy(inc_src, sys.inc_load_loc + '/'); }
-	if res != 0 { return res; }
+	if fs.exists(inc_src) {
+		io.cprintln('{w}=> {c}', inc_src, '/* {0}-> {c}', sys.inc_load_loc, '/ {0}...');
+		if !dry_run { res = os.copy(inc_src + '/*', sys.inc_load_loc + '/'); }
+		if res != 0 { return res; }
+	}
 
-	let lib_src = 'build/*';
+	let lib_src = 'build';
 	if kw_args['lib'] != nil {
 		lib_src = kw_args['lib'];
 	}
-	io.cprintln('{w}=> {c}', lib_src, ' {0}-> {c}', sys.dll_load_loc, '/ {0}...');
-	if !dry_run { res = os.copy(lib_src, sys.dll_load_loc + '/'); }
-	if res != 0 { return res; }
+	if fs.exists(lib_src) {
+		io.cprintln('{w}=> {c}', lib_src, '/* {0}-> {c}', sys.dll_load_loc, '/ {0}...');
+		if !dry_run { res = os.copy(lib_src + '/*', sys.dll_load_loc + '/'); }
+		if res != 0 { return res; }
+	}
 
 	if !dry_run {
 		io.cprintln('Installation successful!');
