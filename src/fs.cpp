@@ -206,7 +206,7 @@ INIT_MODULE( fs )
 	const std::string & src_name = src->src()->path();
 
 	// get the type id for file_iterable type (register_type)
-	file_iterable_typeid = vm.register_new_type( "var_file_iterable_t", "file_iterable_t" );
+	file_iterable_typeid = vm.register_new_type( "var_file_iterable_t", "file_iterable_t", src_id, idx );
 
 	src->add_nativefn( "exists", fs_exists, { "" } );
 	src->add_nativefn( "open_native", fs_open, { "", "" }, {} );
@@ -220,13 +220,13 @@ INIT_MODULE( fs )
 	vm.add_typefn( file_iterable_typeid, "next", new var_fn_t( src_name, {}, {}, { .native = fs_file_iterable_next }, 0, 0 ), false );
 
 	// constants
-	src->add_nativevar( "WALK_FILES", make< var_int_t >( WalkEntry::FILES ) );
-	src->add_nativevar( "WALK_DIRS", make< var_int_t >( WalkEntry::DIRS ) );
-	src->add_nativevar( "WALK_RECURSE", make< var_int_t >( WalkEntry::RECURSE ) );
+	src->add_nativevar( "WALK_FILES", make_all< var_int_t >( WalkEntry::FILES, src_id, idx ) );
+	src->add_nativevar( "WALK_DIRS", make_all< var_int_t >( WalkEntry::DIRS, src_id, idx ) );
+	src->add_nativevar( "WALK_RECURSE", make_all< var_int_t >( WalkEntry::RECURSE, src_id, idx ) );
 
-	src->add_nativevar( "SEEK_SET", make< var_int_t >( SEEK_SET ) );
-	src->add_nativevar( "SEEK_CUR", make< var_int_t >( SEEK_CUR ) );
-	src->add_nativevar( "SEEK_END", make< var_int_t >( SEEK_END ) );
+	src->add_nativevar( "SEEK_SET", make_all< var_int_t >( SEEK_SET, src_id, idx ) );
+	src->add_nativevar( "SEEK_CUR", make_all< var_int_t >( SEEK_CUR, src_id, idx ) );
+	src->add_nativevar( "SEEK_END", make_all< var_int_t >( SEEK_END, src_id, idx ) );
 
 	return true;
 }
