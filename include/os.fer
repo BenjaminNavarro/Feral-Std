@@ -23,3 +23,8 @@ let exec_exists = fn(exec) {
 	}
 	return '';
 };
+
+# chmod command wrapper
+let chmod = fn(dest, mode = '0755', recurse = true) {
+	return chmod_native(dest, mode, recurse);
+};

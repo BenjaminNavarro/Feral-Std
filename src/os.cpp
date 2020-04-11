@@ -232,6 +232,32 @@ var_base_t * os_copy( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_int_t >( exec_internal( "cp -r " + src + " " + dest ) );
 }
 
+var_base_t * os_chmod( vm_state_t & vm, const fn_data_t & fd )
+{
+	if( fd.args[ 1 ]->type() != VT_STR ) {
+		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination, found: %s",
+						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
+	}
+	if( fd.args[ 2 ]->type() != VT_STR ) {
+		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for mode, found: %s",
+						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
+	}
+	if( fd.args[ 3 ]->type() != VT_BOOL ) {
+		vm.src_stack.back()->src()->fail( fd.idx, "expected boolean argument for recursive, found: %s",
+						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
+	}
+	const std::string & dest = STR( fd.args[ 1 ] )->get();
+	const std::string & mode = STR( fd.args[ 2 ] )->get();
+	const bool & recurse = BOOL( fd.args[ 3 ] )->get();
+	std::string cmd = "chmod ";
+	if( recurse ) cmd += "-R ";
+	cmd += mode + " " + dest;
+	return make< var_int_t >( exec_internal( cmd ) );
+}
+
 INIT_MODULE( os )
 {
 	var_src_t * src = vm.src_stack.back();
@@ -253,6 +279,8 @@ INIT_MODULE( os )
 	src->add_nativefn( "rm", os_rm, { "" }, {}, true );
 
 	src->add_nativefn( "copy", os_copy, { "", "" }, {}, true );
+
+	src->add_nativefn( "chmod_native", os_chmod, { "", "", "" }, {} );
 
 	return true;
 }
