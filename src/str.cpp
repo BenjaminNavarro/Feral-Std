@@ -128,20 +128,6 @@ var_base_t * str_last( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_int_t >( STR( fd.args[ 0 ] )->get().size() - 1 );
 }
 
-var_base_t * str_at( vm_state_t & vm, const fn_data_t & fd )
-{
-	srcfile_t * src_file = vm.src_stack.back()->src();
-	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
-		return nullptr;
-	}
-	std::string & str = STR( fd.args[ 0 ] )->get();
-	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
-	if( pos >= str.size() ) return vm.nil;
-	return make< var_str_t >( std::string( 1, str[ pos ] ) );
-}
-
 var_base_t * str_trim( vm_state_t & vm, const fn_data_t & fd )
 {
 	std::string & str = STR( fd.args[ 0 ] )->get();
@@ -197,8 +183,6 @@ INIT_MODULE( str )
 	vm.add_typefn( VT_STR, "erase", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_erase }, true, 0, 0 ), false );
 	vm.add_typefn( VT_STR, "lastidx", new var_fn_t( src_name, "",  "", {}, {}, { .native = str_last }, true, 0, 0 ), false );
 	vm.add_typefn( VT_STR,   "set", new var_fn_t( src_name, "",  "", { "", "" }, {}, { .native = str_setat }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR,    "at", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_at }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR,    "[]", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_at }, true, 0, 0 ), false );
 
 	vm.add_typefn( VT_STR,  "trim", new var_fn_t( src_name, "", "", {}, {}, { .native = str_trim }, true, 0, 0 ), false );
 	vm.add_typefn( VT_STR, "split_native", new var_fn_t( src_name, "", "", { "" }, {}, { .native = str_split }, true, 0, 0 ), false );
