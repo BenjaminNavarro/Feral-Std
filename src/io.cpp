@@ -214,8 +214,9 @@ INIT_MODULE( io )
 	src->add_nativefn( "scaneof_native", scaneof, { "" } );
 	src->add_nativefn( "fflush", fflush, { "" } );
 
-	src->add_nativevar( "stdout", make_all< var_file_t >( stdout, "w", src_id, idx, true ) );
-	src->add_nativevar( "stderr", make_all< var_file_t >( stderr, "w", src_id, idx, true ) );
+	// stdout and stderr cannot be owned by a var_file_t
+	src->add_nativevar( "stdout", make_all< var_file_t >( stdout, "w", src_id, idx, false ) );
+	src->add_nativevar( "stderr", make_all< var_file_t >( stderr, "w", src_id, idx, false ) );
 	return true;
 }
 
