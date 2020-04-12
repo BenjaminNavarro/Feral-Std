@@ -120,7 +120,7 @@ var_base_t * fs_open( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_file_t >( file, mode );
 }
 
-var_base_t * fs_file_all_lines( vm_state_t & vm, const fn_data_t & fd )
+var_base_t * fs_file_lines( vm_state_t & vm, const fn_data_t & fd )
 {
 	FILE * const file = FILE( fd.args[ 0 ] )->get();
 	char * line_ptr = NULL;
@@ -159,9 +159,72 @@ var_base_t * fs_file_seek( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_int_t >( fseek( file, pos, origin ) );
 }
 
-var_base_t * fs_file_readlines( vm_state_t & vm, const fn_data_t & fd )
+var_base_t * fs_file_each_line( vm_state_t & vm, const fn_data_t & fd )
 {
 	return make< var_file_iterable_t >( FILE( fd.args[ 0 ] ) );
+}
+
+var_base_t * fs_file_read_blocks( vm_state_t & vm, const fn_data_t & fd )
+{
+	srcfile_t * src = vm.src_stack.back()->src();
+	FILE * const file = FILE( fd.args[ 0 ] )->get();
+
+	if( fd.args[ 1 ]->type() != VT_STR ) {
+		src->fail( fd.idx, "expected string argument for block begin location, found: %s",
+			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
+	}
+	if( fd.args[ 2 ]->type() != VT_STR ) {
+		src->fail( fd.idx, "expected string argument for block end location, found: %s",
+			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		return nullptr;
+	}
+
+	const std::string & begin = STR( fd.args[ 1 ] )->get();
+	const std::string & end = STR( fd.args[ 2 ] )->get();
+	bool inside_block = false;
+
+	char * line_ptr = NULL;
+	size_t len = 0;
+	ssize_t read = 0;
+
+	std::string line;
+	std::string block_content;
+	std::vector< var_base_t * > blocks;
+	while( ( read = getline( & line_ptr, & len, file ) ) != -1 ) {
+		line = line_ptr;
+	begin_fetch:
+		if( line.empty() ) continue;
+		if( !inside_block ) {
+			size_t pos = line.find( begin );
+			if( pos == std::string::npos ) continue;
+			inside_block = true;
+			if( pos + begin.size() > line.size() ) continue;
+			else line = line.substr( pos + begin.size() );
+			goto begin_fetch;
+		}
+		size_t pos = line.find( end );
+		if( pos == std::string::npos ) { block_content += line; continue; }
+		block_content += line.substr( 0, pos );
+		if( pos + end.size() <= line.size() ) line = line.substr( pos + end.size() );
+		else line.clear();
+		inside_block = false;
+		blocks.push_back( new var_str_t( block_content, fd.src_id, fd.idx ) );
+		block_content.clear();
+		goto begin_fetch;
+	}
+
+	if( line_ptr ) free( line_ptr );
+	fseek( file, 0, SEEK_SET );
+
+	// this should actually never occur since block_content
+	// is always pushed back when end point is found
+	// if( !block_content.empty() ) {
+	// 	blocks.push_back( new var_str_t( block_content, fd.src_id, fd.idx ) );
+	// }
+	assert( block_content.empty() );
+
+	return make< var_vec_t >( blocks );
 }
 
 var_base_t * fs_file_iterable_next( vm_state_t & vm, const fn_data_t & fd )
@@ -212,8 +275,9 @@ INIT_MODULE( fs )
 	src->add_nativefn( "open_native", fs_open, { "", "" }, {} );
 	src->add_nativefn( "walkdir_native", fs_walkdir, { "", "", "" }, {} );
 
-	vm.add_typefn( VT_FILE, "alllines", new var_fn_t( src_name, {}, {}, { .native = fs_file_all_lines }, 0, 0 ), false );
-	vm.add_typefn( VT_FILE, "readlines", new var_fn_t( src_name, {}, {}, { .native = fs_file_readlines }, 0, 0 ), false );
+	vm.add_typefn( VT_FILE, "lines", new var_fn_t( src_name, {}, {}, { .native = fs_file_lines }, 0, 0 ), false );
+	vm.add_typefn( VT_FILE, "each_line", new var_fn_t( src_name, {}, {}, { .native = fs_file_each_line }, 0, 0 ), false );
+	vm.add_typefn( VT_FILE, "read_blocks", new var_fn_t( src_name, { "", "" }, {}, { .native = fs_file_read_blocks }, 0, 0 ), false );
 
 	vm.add_typefn( VT_FILE, "seek", new var_fn_t( src_name, { "", "" }, {}, { .native = fs_file_seek }, 0, 0 ), false );
 
