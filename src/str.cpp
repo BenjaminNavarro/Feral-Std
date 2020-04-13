@@ -171,24 +171,23 @@ var_base_t * i_to_c( vm_state_t & vm, const fn_data_t & fd )
 INIT_MODULE( str )
 {
 	var_src_t * src = vm.src_stack.back();
-	const std::string & src_name = src->src()->path();
 
-	vm.add_typefn( VT_STR,   "len", new var_fn_t( src_name, "",  "", {}, {}, { .native = str_size  }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR, "empty", new var_fn_t( src_name, "",  "", {}, {}, { .native = str_empty }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR, "front", new var_fn_t( src_name, "",  "", {}, {}, { .native = str_front }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR,  "back", new var_fn_t( src_name, "",  "", {}, {}, { .native = str_back  }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR,  "push", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_push }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR,   "pop", new var_fn_t( src_name, "",  "", {}, {}, { .native = str_pop   }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR, "insert", new var_fn_t( src_name, "",  "", { "", "" }, {}, { .native = str_insert }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR, "erase", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = str_erase }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR, "lastidx", new var_fn_t( src_name, "",  "", {}, {}, { .native = str_last }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR,   "set", new var_fn_t( src_name, "",  "", { "", "" }, {}, { .native = str_setat }, true, 0, 0 ), false );
+	vm.add_typefn_native( VT_STR,     "len", str_size,   0, src_id, idx );
+	vm.add_typefn_native( VT_STR,   "empty", str_empty,  0, src_id, idx );
+	vm.add_typefn_native( VT_STR,   "front", str_front,  0, src_id, idx );
+	vm.add_typefn_native( VT_STR,    "back", str_back,   0, src_id, idx );
+	vm.add_typefn_native( VT_STR,    "push", str_push,   1, src_id, idx );
+	vm.add_typefn_native( VT_STR,     "pop", str_pop,    0, src_id, idx );
+	vm.add_typefn_native( VT_STR,  "insert", str_insert, 2, src_id, idx );
+	vm.add_typefn_native( VT_STR,   "erase", str_erase,  1, src_id, idx );
+	vm.add_typefn_native( VT_STR, "lastidx", str_last,   0, src_id, idx );
+	vm.add_typefn_native( VT_STR,     "set", str_setat,  2, src_id, idx );
 
-	vm.add_typefn( VT_STR,  "trim", new var_fn_t( src_name, "", "", {}, {}, { .native = str_trim }, true, 0, 0 ), false );
-	vm.add_typefn( VT_STR, "split_native", new var_fn_t( src_name, "", "", { "" }, {}, { .native = str_split }, true, 0, 0 ), false );
+	vm.add_typefn_native( VT_STR,  "trim", str_trim, 0, src_id, idx );
+	vm.add_typefn_native( VT_STR, "split_native", str_split, 1, src_id, idx );
 
-	vm.add_typefn( VT_STR, "c_to_i", new var_fn_t( src_name, "", "", {}, {}, { .native = c_to_i }, true, 0, 0 ), false );
-	vm.add_typefn( VT_INT, "i_to_c", new var_fn_t( src_name, "", "", {}, {}, { .native = i_to_c }, true, 0, 0 ), false );
+	vm.add_typefn_native( VT_STR, "c_to_i", c_to_i, 0, src_id, idx );
+	vm.add_typefn_native( VT_INT, "i_to_c", i_to_c, 0, src_id, idx );
 
 	return true;
 }

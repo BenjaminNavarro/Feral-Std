@@ -54,7 +54,6 @@ var_base_t * feral_home_dir( vm_state_t & vm, const fn_data_t & fd )
 INIT_MODULE( sys )
 {
 	var_src_t * src = vm.src_stack.back();
-	const std::string & src_name = src->src()->path();
 	src->add_nativefn( "exit_native", _exit, 1 );
 	src->add_nativefn( "self_binary_loc_native", self_binary_loc );
 	src->add_nativefn( "src_args_native", src_args );

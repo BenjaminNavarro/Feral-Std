@@ -271,7 +271,6 @@ var_base_t * os_chmod( vm_state_t & vm, const fn_data_t & fd )
 INIT_MODULE( os )
 {
 	var_src_t * src = vm.src_stack.back();
-	const std::string & src_name = src->src()->path();
 
 	src->add_nativefn( "sleep", sleep_custom, 1 );
 

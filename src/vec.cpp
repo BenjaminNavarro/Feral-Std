@@ -226,30 +226,29 @@ var_base_t * vec_slice( vm_state_t & vm, const fn_data_t & fd )
 INIT_MODULE( vec )
 {
 	var_src_t * src = vm.src_stack.back();
-	const std::string & src_name = src->src()->path();
 
 	src->add_nativefn( "new", vec_new, 0, {}, true );
 
-	vm.add_typefn( VT_VEC,   "len", new var_fn_t( src_name, {}, {}, { .native = vec_size  }, 0, 0 ), false );
-	vm.add_typefn( VT_VEC, "empty", new var_fn_t( src_name, {}, {}, { .native = vec_empty }, 0, 0 ), false );
-	vm.add_typefn( VT_VEC, "front", new var_fn_t( src_name, "",  "", {}, {}, { .native = vec_front }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC,  "back", new var_fn_t( src_name, "",  "", {}, {}, { .native = vec_back  }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC,  "push", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = vec_push }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC,   "pop", new var_fn_t( src_name, "",  "", {}, {}, { .native = vec_pop   }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC, "insert", new var_fn_t( src_name, "",  "", { "", "" }, {}, { .native = vec_insert }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC, "erase", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = vec_erase }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC, "lastidx", new var_fn_t( src_name, "",  "", {}, {}, { .native = vec_last }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC,   "set", new var_fn_t( src_name, "",  "", { "", "" }, {}, { .native = vec_setat }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC,    "at", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = vec_at }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC,    "[]", new var_fn_t( src_name, "",  "", { "" }, {}, { .native = vec_at }, true, 0, 0 ), false );
-	vm.add_typefn( VT_VEC,  "each", new var_fn_t( src_name, {}, {}, { .native = vec_each  }, 0, 0 ), false );
+	vm.add_typefn_native( VT_VEC,   "len",    vec_size, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC, "empty",   vec_empty, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC, "front",   vec_front, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,  "back",    vec_back, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,  "push",    vec_push, 1, src_id, idx );
+	vm.add_typefn_native( VT_VEC,   "pop",     vec_pop, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC, "insert", vec_insert, 2, src_id, idx );
+	vm.add_typefn_native( VT_VEC, "erase",   vec_erase, 1, src_id, idx );
+	vm.add_typefn_native( VT_VEC, "lastidx",  vec_last, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,   "set",   vec_setat, 2, src_id, idx );
+	vm.add_typefn_native( VT_VEC,    "at",      vec_at, 1, src_id, idx );
+	vm.add_typefn_native( VT_VEC,    "[]",      vec_at, 1, src_id, idx );
+	vm.add_typefn_native( VT_VEC,  "each",    vec_each, 0, src_id, idx );
 
-	vm.add_typefn( VT_VEC, "slice_native", new var_fn_t( src_name, "",  "", { "", "" }, {}, { .native = vec_slice }, true, 0, 0 ), false );
+	vm.add_typefn_native( VT_VEC, "slice_native", vec_slice, 2, src_id, idx );
 
 	// get the type id for vec iterable (register_type)
 	vec_iterable_typeid = vm.register_new_type( "vec_iterable_t", src_id, idx );
 
-	vm.add_typefn( vec_iterable_typeid, "next", new var_fn_t( src_name, {}, {}, { .native = vec_iterable_next }, 0, 0 ), false );
+	vm.add_typefn_native( vec_iterable_typeid, "next", vec_iterable_next, 0, src_id, idx );
 
 	return true;
 }
