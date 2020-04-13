@@ -17,7 +17,7 @@ let name = os_get_name_native();
 
 # find the given file (exec) in the PATH variables
 # return the entire file path if found, empty string if not
-let exec_exists = fn(exec) {
+let find_exec = fn(exec) {
 	for dir in get_env('PATH').split().each() {
 		if fs.exists(dir + '/' + exec) { return dir + '/' + exec; }
 	}
