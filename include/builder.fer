@@ -13,7 +13,7 @@ let shared_lib_out_ext = '.so';
 let shared_lib_flag = '-shared';
 
 if !default_ccache.empty() {
-	ccache += ' ';
+	default_ccache += ' ';
 }
 
 if os.name == 'macos' || os.name == 'bsd' {
