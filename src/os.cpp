@@ -273,25 +273,25 @@ INIT_MODULE( os )
 	var_src_t * src = vm.src_stack.back();
 	const std::string & src_name = src->src()->path();
 
-	src->add_nativefn( "sleep", sleep_custom, { "" } );
+	src->add_nativefn( "sleep", sleep_custom, 1 );
 
-	src->add_nativefn( "get_env", get_env, { "" } );
-	src->add_nativefn( "set_env_native", set_env, { "", "", "" } );
+	src->add_nativefn( "get_env", get_env, 1 );
+	src->add_nativefn( "set_env_native", set_env, 3 );
 
-	src->add_nativefn( "exec", exec_custom, { "" } );
-	src->add_nativefn( "install", install, { "", "" } );
+	src->add_nativefn( "exec", exec_custom, 1 );
+	src->add_nativefn( "install", install, 2 );
 
 	src->add_nativefn( "os_get_name_native", os_get_name );
 
 	src->add_nativefn( "get_cwd", os_get_cwd );
-	src->add_nativefn( "set_cwd", os_set_cwd, { "" } );
+	src->add_nativefn( "set_cwd", os_set_cwd, 1 );
 
-	src->add_nativefn( "mkdir", os_mkdir, { "" }, {}, true );
-	src->add_nativefn( "rm", os_rm, { "" }, {}, true );
+	src->add_nativefn( "mkdir", os_mkdir, 1, {}, true );
+	src->add_nativefn( "rm", os_rm, 1, {}, true );
 
-	src->add_nativefn( "copy", os_copy, { "", "" }, {}, true );
+	src->add_nativefn( "copy", os_copy, 2, {}, true );
 
-	src->add_nativefn( "chmod_native", os_chmod, { "", "", "" }, {} );
+	src->add_nativefn( "chmod_native", os_chmod, 3, {} );
 
 	return true;
 }

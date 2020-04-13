@@ -159,7 +159,7 @@ INIT_MODULE( map )
 	var_src_t * src = vm.src_stack.back();
 	const std::string & src_name = src->src()->path();
 
-	src->add_nativefn( "new", map_new, {}, {}, true );
+	src->add_nativefn( "new", map_new, 0, {}, true );
 
 	vm.add_typefn( VT_MAP, "insert", new var_fn_t( src_name, { "", "" }, {}, { .native = map_insert }, 0, 0 ), false );
 	vm.add_typefn( VT_MAP,  "erase", new var_fn_t( src_name, { "" }, {}, { .native = map_erase }, 0, 0 ), false );

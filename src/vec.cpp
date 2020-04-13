@@ -228,7 +228,7 @@ INIT_MODULE( vec )
 	var_src_t * src = vm.src_stack.back();
 	const std::string & src_name = src->src()->path();
 
-	src->add_nativefn( "new", vec_new, {}, {}, true );
+	src->add_nativefn( "new", vec_new, 0, {}, true );
 
 	vm.add_typefn( VT_VEC,   "len", new var_fn_t( src_name, {}, {}, { .native = vec_size  }, 0, 0 ), false );
 	vm.add_typefn( VT_VEC, "empty", new var_fn_t( src_name, {}, {}, { .native = vec_empty }, 0, 0 ), false );

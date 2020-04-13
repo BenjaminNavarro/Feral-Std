@@ -271,9 +271,9 @@ INIT_MODULE( fs )
 	// get the type id for file_iterable type (register_type)
 	file_iterable_typeid = vm.register_new_type( "file_iterable_t", src_id, idx );
 
-	src->add_nativefn( "exists", fs_exists, { "" } );
-	src->add_nativefn( "open_native", fs_open, { "", "" }, {} );
-	src->add_nativefn( "walkdir_native", fs_walkdir, { "", "", "" }, {} );
+	src->add_nativefn( "exists", fs_exists, 1 );
+	src->add_nativefn( "open_native", fs_open, 2, {} );
+	src->add_nativefn( "walkdir_native", fs_walkdir, 3, {} );
 
 	vm.add_typefn( VT_FILE, "lines", new var_fn_t( src_name, {}, {}, { .native = fs_file_lines }, 0, 0 ), false );
 	vm.add_typefn( VT_FILE, "each_line", new var_fn_t( src_name, {}, {}, { .native = fs_file_each_line }, 0, 0 ), false );
