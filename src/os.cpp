@@ -143,7 +143,7 @@ var_base_t * os_get_name( vm_state_t & vm, const fn_data_t & fd )
 //////////////////////////////////////////////////////// Extra Functions ///////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var_base_t * os_cwd( vm_state_t & vm, const fn_data_t & fd )
+var_base_t * os_get_cwd( vm_state_t & vm, const fn_data_t & fd )
 {
 	char cwd[ PATH_MAX ];
 	if( getcwd( cwd, PATH_MAX ) == NULL ) {
@@ -151,6 +151,16 @@ var_base_t * os_cwd( vm_state_t & vm, const fn_data_t & fd )
 		return nullptr;
 	}
 	return make< var_str_t >( cwd );
+}
+
+var_base_t * os_set_cwd( vm_state_t & vm, const fn_data_t & fd )
+{
+	if( fd.args[ 1 ]->type() != VT_STR ) {
+		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination directory, found: %s",
+						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		return nullptr;
+	}
+	return make< var_int_t >( chdir( STR( fd.args[ 1 ] )->get().c_str() ) );
 }
 
 var_base_t * os_mkdir( vm_state_t & vm, const fn_data_t & fd )
@@ -273,7 +283,8 @@ INIT_MODULE( os )
 
 	src->add_nativefn( "os_get_name_native", os_get_name );
 
-	src->add_nativefn( "cwd", os_cwd );
+	src->add_nativefn( "get_cwd", os_get_cwd );
+	src->add_nativefn( "set_cwd", os_set_cwd, { "" } );
 
 	src->add_nativefn( "mkdir", os_mkdir, { "" }, {}, true );
 	src->add_nativefn( "rm", os_rm, { "" }, {}, true );
