@@ -269,7 +269,7 @@ INIT_MODULE( fs )
 	const std::string & src_name = src->src()->path();
 
 	// get the type id for file_iterable type (register_type)
-	file_iterable_typeid = vm.register_new_type( "var_file_iterable_t", "file_iterable_t", src_id, idx );
+	file_iterable_typeid = vm.register_new_type( "file_iterable_t", src_id, idx );
 
 	src->add_nativefn( "exists", fs_exists, { "" } );
 	src->add_nativefn( "open_native", fs_open, { "", "" }, {} );

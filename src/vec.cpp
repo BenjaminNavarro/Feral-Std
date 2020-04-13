@@ -246,8 +246,8 @@ INIT_MODULE( vec )
 
 	vm.add_typefn( VT_VEC, "slice_native", new var_fn_t( src_name, "",  "", { "", "" }, {}, { .native = vec_slice }, true, 0, 0 ), false );
 
-	// get the type id for int iterable (register_type)
-	vec_iterable_typeid = vm.register_new_type( "var_vec_iterable_t", "vec_iterable_t", src_id, idx );
+	// get the type id for vec iterable (register_type)
+	vec_iterable_typeid = vm.register_new_type( "vec_iterable_t", src_id, idx );
 
 	vm.add_typefn( vec_iterable_typeid, "next", new var_fn_t( src_name, {}, {}, { .native = vec_iterable_next }, 0, 0 ), false );
 

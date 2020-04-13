@@ -9,12 +9,6 @@
 
 #include <feral/VM/VM.hpp>
 
-static int register_struct_enum_id()
-{
-	static int id = _VT_LAST;
-	return id++;
-}
-
 var_base_t * create_struct( vm_state_t & vm, const fn_data_t & fd )
 {
 	const size_t src_id = vm.src_stack.back()->src_id();
@@ -25,7 +19,7 @@ var_base_t * create_struct( vm_state_t & vm, const fn_data_t & fd )
 		attr_order.push_back( arg.name );
 		attrs[ arg.name ] = arg.val->copy( src_id, fd.idx );
 	}
-	return make< var_struct_def_t >( register_struct_enum_id(), attr_order, attrs );
+	return make< var_struct_def_t >( vm.register_struct_enum_id(), attr_order, attrs );
 }
 
 var_base_t * create_enum( vm_state_t & vm, const fn_data_t & fd )
@@ -54,7 +48,7 @@ var_base_t * create_enum( vm_state_t & vm, const fn_data_t & fd )
 		attrs[ arg.name ] = arg.val->copy( fd.src_id, fd.idx );
 	}
 
-	return make< var_struct_t >( register_struct_enum_id(), attrs );
+	return make< var_struct_t >( vm.register_struct_enum_id(), attrs );
 fail:
 	for( auto & attr : attrs ) {
 		var_dref( attr.second );
