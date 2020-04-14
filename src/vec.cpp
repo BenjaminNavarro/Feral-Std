@@ -63,7 +63,8 @@ bool var_vec_iterable_t::next( var_base_t * & val )
 
 var_base_t * vec_new( vm_state_t & vm, const fn_data_t & fd )
 {
-	std::vector< var_base_t * > vec_val( fd.args.size() - 1 );
+	std::vector< var_base_t * > vec_val;
+	vec_val.reserve( fd.args.size() - 1 );
 	for( size_t i = 1; i < fd.args.size(); ++i ) {
 		vec_val.push_back( fd.args[ i ]->copy( fd.src_id, fd.idx ) );
 	}
@@ -100,18 +101,20 @@ var_base_t * vec_back( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * vec_push( vm_state_t & vm, const fn_data_t & fd )
 {
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
-	var_iref( fd.args[ 1 ] );
-	vec.push_back( fd.args[ 1 ] );
+	vec.push_back( fd.args[ 1 ]->copy( fd.src_id, fd.idx ) );
 	return fd.args[ 0 ];
 }
 
 var_base_t * vec_pop( vm_state_t & vm, const fn_data_t & fd )
 {
+	srcfile_t * src_file = vm.src_stack.back()->src();
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
-	if( vec.size() > 0 ) {
-		var_dref( vec.back() );
-		vec.pop_back();
+	if( vec.empty() ) {
+		src_file->fail( fd.idx, "performed pop() on an empty vector" );
+		return nullptr;
 	}
+	var_dref( vec.back() );
+	vec.pop_back();
 	return fd.args[ 0 ];
 }
 
@@ -166,7 +169,13 @@ var_base_t * vec_erase( vm_state_t & vm, const fn_data_t & fd )
 	}
 	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
-	if( pos < vec.size() ) vec.erase( vec.begin() + pos );
+	if( pos >= vec.size() ) {
+		src_file->fail( fd.idx, "attempted erase on pos: %zu, vector size: %zu",
+				pos, vec.size() );
+		return nullptr;
+	}
+	var_dref( vec[ pos ] );
+	vec.erase( vec.begin() + pos );
 	return fd.args[ 0 ];
 }
 
@@ -215,7 +224,8 @@ var_base_t * vec_slice( vm_state_t & vm, const fn_data_t & fd )
 	size_t start = INT( fd.args[ 1 ] )->get().get_ui();
 	size_t end = INT( fd.args[ 2 ] )->get().get_ui();
 
-	std::vector< var_base_t * > newvec( end - start );
+	std::vector< var_base_t * > newvec;
+	newvec.reserve( end - start );
 	for( size_t i = start; i < end; ++i ) {
 		var_iref( vec[ i ] );
 		newvec.push_back( vec[ i ] );
