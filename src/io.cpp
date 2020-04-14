@@ -202,14 +202,14 @@ INIT_MODULE( io )
 {
 	var_src_t * src = vm.src_stack.back();
 
-	src->add_nativefn( "print", print, 1, {}, true );
-	src->add_nativefn( "println", println, 0, {}, true );
-	src->add_nativefn( "fprint", fprint, 2, {}, true );
-	src->add_nativefn( "fprintln", fprintln, 1, {}, true );
-	src->add_nativefn( "cprint", col_print, {}, {}, true );
-	src->add_nativefn( "cprintln", col_println, {}, {}, true );
-	src->add_nativefn( "cdprint", col_dprint, {}, {}, true );
-	src->add_nativefn( "cdprintln", col_dprintln, {}, {}, true );
+	src->add_nativefn( "print", print, 1, true );
+	src->add_nativefn( "println", println, 0, true );
+	src->add_nativefn( "fprint", fprint, 2, true );
+	src->add_nativefn( "fprintln", fprintln, 1, true );
+	src->add_nativefn( "cprint", col_print, 1, true );
+	src->add_nativefn( "cprintln", col_println, 0, true );
+	src->add_nativefn( "cdprint", col_dprint, 1, true );
+	src->add_nativefn( "cdprintln", col_dprintln, 0, true );
 	src->add_nativefn( "scan_native", scan, 1 );
 	src->add_nativefn( "scaneof_native", scaneof, 1 );
 	src->add_nativefn( "fflush", fflush, 1 );

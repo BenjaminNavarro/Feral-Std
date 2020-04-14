@@ -59,7 +59,7 @@ fail:
 INIT_MODULE( lang )
 {
 	var_src_t * src = vm.src_stack.back();
-	src->add_nativefn( "enum", create_enum, 0, {}, true );
+	src->add_nativefn( "enum", create_enum, 0, true );
 	src->add_nativefn( "struct", create_struct );
 	return true;
 }

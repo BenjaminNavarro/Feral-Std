@@ -285,12 +285,12 @@ INIT_MODULE( os )
 	src->add_nativefn( "get_cwd", os_get_cwd );
 	src->add_nativefn( "set_cwd", os_set_cwd, 1 );
 
-	src->add_nativefn( "mkdir", os_mkdir, 1, {}, true );
-	src->add_nativefn( "rm", os_rm, 1, {}, true );
+	src->add_nativefn( "mkdir", os_mkdir, 1, true );
+	src->add_nativefn( "rm", os_rm, 1, true );
 
-	src->add_nativefn( "copy", os_copy, 2, {}, true );
+	src->add_nativefn( "copy", os_copy, 2, true );
 
-	src->add_nativefn( "chmod_native", os_chmod, 3, {} );
+	src->add_nativefn( "chmod_native", os_chmod, 3 );
 
 	return true;
 }

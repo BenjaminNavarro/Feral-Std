@@ -227,7 +227,7 @@ INIT_MODULE( vec )
 {
 	var_src_t * src = vm.src_stack.back();
 
-	src->add_nativefn( "new", vec_new, 0, {}, true );
+	src->add_nativefn( "new", vec_new, 0, true );
 
 	vm.add_typefn_native( VT_VEC,   "len",    vec_size, 0, src_id, idx );
 	vm.add_typefn_native( VT_VEC, "empty",   vec_empty, 0, src_id, idx );

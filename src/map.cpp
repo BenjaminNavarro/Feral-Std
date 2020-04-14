@@ -158,7 +158,7 @@ INIT_MODULE( map )
 {
 	var_src_t * src = vm.src_stack.back();
 
-	src->add_nativefn( "new", map_new, 0, {}, true );
+	src->add_nativefn( "new", map_new, 0, true );
 
 	vm.add_typefn_native( VT_MAP, "insert", map_insert, 2, src_id, idx );
 	vm.add_typefn_native( VT_MAP,  "erase", map_erase,  1, src_id, idx );
