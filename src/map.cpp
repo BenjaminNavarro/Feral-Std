@@ -110,8 +110,10 @@ var_base_t * map_erase( vm_state_t & vm, const fn_data_t & fd )
 	if( !fd.args[ 1 ]->to_str( vm, key, fd.src_id, fd.idx ) ) {
 		return nullptr;
 	}
-	if( map.find( key ) != map.end() ) {
-		var_dref( map[ key ] );
+	auto key_it = map.find( key );
+	if( key_it != map.end() ) {
+		var_dref( key_it->second );
+		map.erase(key_it);
 	}
 	return fd.args[ 0 ];
 }
