@@ -86,6 +86,11 @@ var_base_t * map_new( vm_state_t & vm, const fn_data_t & fd )
 	return make< var_map_t >( map_val );
 }
 
+var_base_t * map_size( vm_state_t & vm, const fn_data_t & fd )
+{
+	return make< var_int_t >( MAP( fd.args[ 0 ] )->get().size() );
+}
+
 var_base_t * map_insert( vm_state_t & vm, const fn_data_t & fd )
 {
 	srcfile_t * src = vm.src_stack.back()->src();
@@ -160,6 +165,7 @@ INIT_MODULE( map )
 
 	src->add_nativefn( "new", map_new, 0, true );
 
+	vm.add_typefn_native( VT_MAP, "len", map_size, 0, src_id, idx );
 	vm.add_typefn_native( VT_MAP, "insert", map_insert, 2, src_id, idx );
 	vm.add_typefn_native( VT_MAP,  "erase", map_erase,  1, src_id, idx );
 	vm.add_typefn_native( VT_MAP,    "get", map_get,    1, src_id, idx );
