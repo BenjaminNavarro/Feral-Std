@@ -12,6 +12,8 @@
 std::vector< var_base_t * > _str_split( const std::string & data, const char delim,
 					const size_t & src_id, const size_t & idx );
 
+static inline void trim( std::string & s );
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////// Functions /////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,8 +133,7 @@ var_base_t * str_last( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * str_trim( vm_state_t & vm, const fn_data_t & fd )
 {
 	std::string & str = STR( fd.args[ 0 ] )->get();
-	while( str.size() > 0 && isspace( str.back() ) ) { str.pop_back(); }
-	while( str.size() > 0 && isspace( str.front() ) ) { str.erase( str.begin() ); }
+	trim( str );
 	return fd.args[ 0 ];
 }
 
@@ -212,4 +213,24 @@ std::vector< var_base_t * > _str_split( const std::string & data, const char del
 
 	if( !temp.empty() ) vec.push_back( new var_str_t( temp, src_id, idx ) );
 	return vec;
+}
+
+// trim from start (in place)
+static inline void ltrim( std::string & s ) {
+	s.erase( s.begin(), std::find_if( s.begin(), s.end(), []( int ch ) {
+		return !std::isspace( ch );
+	} ) );
+}
+
+// trim from end (in place)
+static inline void rtrim( std::string & s ) {
+	s.erase( std::find_if( s.rbegin(), s.rend(), []( int ch ) {
+		return !std::isspace( ch );
+	} ).base(), s.end() );
+}
+
+// trim from both ends (in place)
+static inline void trim( std::string & s ) {
+	ltrim( s );
+	rtrim( s );
 }

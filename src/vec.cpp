@@ -63,7 +63,7 @@ bool var_vec_iterable_t::next( var_base_t * & val )
 
 var_base_t * vec_new( vm_state_t & vm, const fn_data_t & fd )
 {
-	std::vector< var_base_t * > vec_val;
+	std::vector< var_base_t * > vec_val( fd.args.size() - 1 );
 	for( size_t i = 1; i < fd.args.size(); ++i ) {
 		vec_val.push_back( fd.args[ i ]->copy( fd.src_id, fd.idx ) );
 	}
@@ -215,7 +215,7 @@ var_base_t * vec_slice( vm_state_t & vm, const fn_data_t & fd )
 	size_t start = INT( fd.args[ 1 ] )->get().get_ui();
 	size_t end = INT( fd.args[ 2 ] )->get().get_ui();
 
-	std::vector< var_base_t * > newvec;
+	std::vector< var_base_t * > newvec( end - start );
 	for( size_t i = start; i < end; ++i ) {
 		var_iref( vec[ i ] );
 		newvec.push_back( vec[ i ] );
