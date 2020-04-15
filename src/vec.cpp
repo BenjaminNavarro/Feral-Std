@@ -221,12 +221,12 @@ var_base_t * vec_slice( vm_state_t & vm, const fn_data_t & fd )
 	}
 
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
-	size_t start = INT( fd.args[ 1 ] )->get().get_ui();
+	size_t begin = INT( fd.args[ 1 ] )->get().get_ui();
 	size_t end = INT( fd.args[ 2 ] )->get().get_ui();
 
 	std::vector< var_base_t * > newvec;
-	newvec.reserve( end - start );
-	for( size_t i = start; i < end; ++i ) {
+	if( end > begin ) newvec.reserve( end - begin );
+	for( size_t i = begin; i < end; ++i ) {
 		var_iref( vec[ i ] );
 		newvec.push_back( vec[ i ] );
 	}
@@ -239,19 +239,19 @@ INIT_MODULE( vec )
 
 	src->add_nativefn( "new", vec_new, 0, true );
 
-	vm.add_typefn_native( VT_VEC,   "len",    vec_size, 0, src_id, idx );
-	vm.add_typefn_native( VT_VEC, "empty",   vec_empty, 0, src_id, idx );
-	vm.add_typefn_native( VT_VEC, "front",   vec_front, 0, src_id, idx );
-	vm.add_typefn_native( VT_VEC,  "back",    vec_back, 0, src_id, idx );
-	vm.add_typefn_native( VT_VEC,  "push",    vec_push, 1, src_id, idx );
-	vm.add_typefn_native( VT_VEC,   "pop",     vec_pop, 0, src_id, idx );
-	vm.add_typefn_native( VT_VEC, "insert", vec_insert, 2, src_id, idx );
-	vm.add_typefn_native( VT_VEC, "erase",   vec_erase, 1, src_id, idx );
-	vm.add_typefn_native( VT_VEC, "lastidx",  vec_last, 0, src_id, idx );
-	vm.add_typefn_native( VT_VEC,   "set",   vec_setat, 2, src_id, idx );
-	vm.add_typefn_native( VT_VEC,    "at",      vec_at, 1, src_id, idx );
-	vm.add_typefn_native( VT_VEC,    "[]",      vec_at, 1, src_id, idx );
-	vm.add_typefn_native( VT_VEC,  "each",    vec_each, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,     "len",    vec_size, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,   "empty",   vec_empty, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,   "front",   vec_front, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,    "back",    vec_back, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,    "push",    vec_push, 1, src_id, idx );
+	vm.add_typefn_native( VT_VEC,     "pop",     vec_pop, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,  "insert",  vec_insert, 2, src_id, idx );
+	vm.add_typefn_native( VT_VEC,   "erase",   vec_erase, 1, src_id, idx );
+	vm.add_typefn_native( VT_VEC, "lastidx",    vec_last, 0, src_id, idx );
+	vm.add_typefn_native( VT_VEC,     "set",   vec_setat, 2, src_id, idx );
+	vm.add_typefn_native( VT_VEC,      "at",      vec_at, 1, src_id, idx );
+	vm.add_typefn_native( VT_VEC,      "[]",      vec_at, 1, src_id, idx );
+	vm.add_typefn_native( VT_VEC,    "each",    vec_each, 0, src_id, idx );
 
 	vm.add_typefn_native( VT_VEC, "slice_native", vec_slice, 2, src_id, idx );
 
