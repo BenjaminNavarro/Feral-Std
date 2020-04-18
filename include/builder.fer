@@ -36,7 +36,7 @@ let builder_t = lang.struct(
 	compiler_opts = ' -std=c++11 -O2 ',
 	inc_dirs = ' ' + default_inc_dir + ' ',
 	lib_dirs = ' ' + default_lib_dir + ' ',
-	lib_flags = ' -lferalvm -lgmp ',
+	lib_flags = ' -lferalvm -lgmpxx -lgmp -lmpfr ',
 	srcs = ' ',
 	linker_flags = ' '
 );
@@ -116,7 +116,7 @@ let perform in builder_t = fn(output_file, .kw_args) {
 	if kw_args['inc'] != nil {
 		inc_src = kw_args['inc'];
 	}
-	if !inc_src.empty() && fs.exists(inc_src) {
+	if !inc_src.empty() && fs.walkdir(inc_src).len() > 0 {
 		io.cprintln('{w}=> {c}', inc_src, '/* {0}-> {c}', sys.inc_load_loc, '/ {0}...');
 		if !dry_run { res = os.copy(inc_src + '/*', sys.inc_load_loc + '/'); }
 		if res != 0 { return res; }
@@ -126,7 +126,7 @@ let perform in builder_t = fn(output_file, .kw_args) {
 	if kw_args['lib'] != nil {
 		lib_src = kw_args['lib'];
 	}
-	if !lib_src.empty() && fs.exists(lib_src) {
+	if !lib_src.empty() && fs.walkdir(lib_src).len() > 0 {
 		io.cprintln('{w}=> {c}', lib_src, '/* {0}-> {c}', sys.dll_load_loc, '/ {0}...');
 		if !dry_run { res = os.copy(lib_src + '/*', sys.dll_load_loc + '/'); }
 		if res != 0 { return res; }
@@ -136,7 +136,7 @@ let perform in builder_t = fn(output_file, .kw_args) {
 	if kw_args['bin'] != nil {
 		bin_src = kw_args['bin'];
 	}
-	if !bin_src.empty() && fs.exists(bin_src) {
+	if !bin_src.empty() && fs.walkdir(bin_src).len() > 0 {
 		io.cprintln('{w}=> {c}', bin_src, '/* {0}-> {c}', sys.dll_load_loc, '/ {0}...');
 		if !dry_run { res = os.chmod(bin_src + '/*'); }
 		if res != 0 { return res; }
