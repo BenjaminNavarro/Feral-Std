@@ -15,7 +15,6 @@ int apply_colors( std::string & str );
 
 var_base_t * print( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	for( size_t i = 1; i < fd.args.size(); ++i ) {
 		std::string str;
 		if( !fd.args[ i ]->to_str( vm, str, fd.src_id, fd.idx ) ) {
@@ -28,7 +27,6 @@ var_base_t * print( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * println( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	for( size_t i = 1; i < fd.args.size(); ++i ) {
 		std::string str;
 		if( !fd.args[ i ]->to_str( vm, str, fd.src_id, fd.idx ) ) {
@@ -42,15 +40,14 @@ var_base_t * println( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fprint( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_FILE ) {
-		src->fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( FILE( fd.args[ 1 ] )->get() == nullptr ) {
-		src->fail( fd.args[ 1 ]->idx(), "file has probably been closed already",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.args[ 1 ]->idx(), "file has probably been closed already",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	for( size_t i = 2; i < fd.args.size(); ++i ) {
@@ -65,15 +62,14 @@ var_base_t * fprint( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fprintln( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_FILE ) {
-		src->fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( FILE( fd.args[ 1 ] )->get() == nullptr ) {
-		src->fail( fd.args[ 1 ]->idx(), "file has probably been closed already",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.args[ 1 ]->idx(), "file has probably been closed already",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	for( size_t i = 2; i < fd.args.size(); ++i ) {
@@ -143,10 +139,9 @@ var_base_t * col_dprintln( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * scan( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		src->fail( fd.args[ 1 ]->idx(), "expected string data for input prompt, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.args[ 1 ]->idx(), "expected string data for input prompt, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	fprintf( stdout, "%s", STR( fd.args[ 1 ] )->get().c_str() );
@@ -163,10 +158,9 @@ var_base_t * scan( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * scaneof( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		src->fail( fd.args[ 1 ]->idx(), "expected string data for input prompt, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.args[ 1 ]->idx(), "expected string data for input prompt, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	fprintf( stdout, "%s", STR( fd.args[ 1 ] )->get().c_str() );
@@ -183,15 +177,14 @@ var_base_t * scaneof( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fflush( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_FILE ) {
-		src->fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( FILE( fd.args[ 1 ] )->get() == nullptr ) {
-		src->fail( fd.args[ 1 ]->idx(), "file has probably been closed already",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.args[ 1 ]->idx(), "file has probably been closed already",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	fflush( FILE( fd.args[ 1 ] )->get() );

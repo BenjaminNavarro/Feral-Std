@@ -43,8 +43,8 @@ var_base_t * str_back( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * str_push( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.current_source_file()->fail( fd.idx, "expected string argument for string.push(), found: %s",
-						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for string.push(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	std::string & src = STR( fd.args[ 1 ] )->get();
@@ -62,22 +62,21 @@ var_base_t * str_pop( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * str_setat( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected first argument to be of type integer for string.set(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected first argument to be of type integer for string.set(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_STR ) {
-		src_file->fail( fd.idx, "expected second argument to be of type string for string.set(), found: %s",
-				vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected second argument to be of type string for string.set(), found: %s",
+			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
 	std::string & dest = STR( fd.args[ 0 ] )->get();
 	if( pos >= dest.size() ) {
-		src_file->fail( fd.idx, "position %zu is not within string of length %zu",
-				pos, dest.size() );
+		vm.fail( fd.idx, "position %zu is not within string of length %zu",
+			 pos, dest.size() );
 		return nullptr;
 	}
 	std::string & src = STR( fd.args[ 2 ] )->get();
@@ -88,22 +87,21 @@ var_base_t * str_setat( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * str_insert( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected first argument to be of type integer for string.insert(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected first argument to be of type integer for string.insert(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_STR ) {
-		src_file->fail( fd.idx, "expected second argument to be of type string for string.insert(), found: %s",
-				vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected second argument to be of type string for string.insert(), found: %s",
+			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
 	std::string & dest = STR( fd.args[ 0 ] )->get();
 	if( pos > dest.size() ) {
-		src_file->fail( fd.idx, "position %zu is greater than string length %zu",
-				pos, dest.size() );
+		vm.fail( fd.idx, "position %zu is greater than string length %zu",
+			 pos, dest.size() );
 		return nullptr;
 	}
 	std::string & src = STR( fd.args[ 2 ] )->get();
@@ -113,10 +111,9 @@ var_base_t * str_insert( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * str_erase( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
@@ -141,12 +138,12 @@ var_base_t * str_split( vm_state_t & vm, const fn_data_t & fd )
 {
 	var_str_t * str = STR( fd.args[ 0 ] );
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.current_source_file()->fail( fd.idx, "expected string argument for delimiter, found: %s",
-						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for delimiter, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( STR( fd.args[ 1 ] )->get().size() == 0 ) {
-		vm.current_source_file()->fail( fd.idx, "found empty delimiter for string split" );
+		vm.fail( fd.idx, "found empty delimiter for string split" );
 		return nullptr;
 	}
 	char delim = STR( fd.args[ 1 ] )->get()[ 0 ];

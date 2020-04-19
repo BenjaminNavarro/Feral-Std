@@ -107,10 +107,9 @@ var_base_t * vec_push( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_pop( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
 	if( vec.empty() ) {
-		src_file->fail( fd.idx, "performed pop() on an empty vector" );
+		vm.fail( fd.idx, "performed pop() on an empty vector" );
 		return nullptr;
 	}
 	var_dref( vec.back() );
@@ -120,17 +119,16 @@ var_base_t * vec_pop( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_setat( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected first argument to be of type integer for vec.set(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected first argument to be of type integer for vec.set(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
 	if( pos >= vec.size() ) {
-		src_file->fail( fd.idx, "position %zu is not within string of length %zu",
-				pos, vec.size() );
+		vm.fail( fd.idx, "position %zu is not within string of length %zu",
+			 pos, vec.size() );
 		return nullptr;
 	}
 	var_dref( vec[ pos ] );
@@ -141,17 +139,16 @@ var_base_t * vec_setat( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_insert( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected first argument to be of type integer for string.insert(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected first argument to be of type integer for string.insert(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
 	if( pos > vec.size() ) {
-		src_file->fail( fd.idx, "position %zu is greater than vector length %zu",
-				pos, vec.size() );
+		vm.fail( fd.idx, "position %zu is greater than vector length %zu",
+			 pos, vec.size() );
 		return nullptr;
 	}
 	var_iref( fd.args[ 2 ] );
@@ -161,17 +158,16 @@ var_base_t * vec_insert( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_erase( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
 	if( pos >= vec.size() ) {
-		src_file->fail( fd.idx, "attempted erase on pos: %zu, vector size: %zu",
-				pos, vec.size() );
+		vm.fail( fd.idx, "attempted erase on pos: %zu, vector size: %zu",
+			 pos, vec.size() );
 		return nullptr;
 	}
 	var_dref( vec[ pos ] );
@@ -186,10 +182,9 @@ var_base_t * vec_last( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_at( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
@@ -208,15 +203,14 @@ var_base_t * vec_iterable_next( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_slice( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected starting index to be of type 'int' for vec.slice(), found: %s",
-				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected starting index to be of type 'int' for vec.slice(), found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected ending index to be of type 'int' for vec.slice(), found: %s",
-				vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected ending index to be of type 'int' for vec.slice(), found: %s",
+			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 

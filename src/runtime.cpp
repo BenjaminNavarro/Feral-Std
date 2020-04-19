@@ -12,8 +12,8 @@
 var_base_t * var_exists( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.current_source_file()->fail( fd.idx, "expected string argument for variable name, found: %s",
-						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for variable name, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	return vm.current_source()->vars()->get( STR( fd.args[ 1 ] )->get() ) != nullptr ? vm.tru : vm.fals;

@@ -11,10 +11,9 @@
 
 var_base_t * _exit( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	vm.exit_called = true;
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src_file->fail( fd.idx, "expected integer for exit function parameter - exit code" );
+		vm.fail( fd.idx, "expected integer for exit function parameter - exit code" );
 		return nullptr;
 	}
 	vm.exit_code = INT( fd.args[ 1 ] )->get().get_si();

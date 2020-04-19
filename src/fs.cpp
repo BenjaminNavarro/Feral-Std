@@ -89,8 +89,8 @@ bool var_file_iterable_t::next( var_base_t * & val )
 var_base_t * fs_exists( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.current_source_file()->fail( fd.idx, "expected string argument for path, found: %s",
-						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for path, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	return access( STR( fd.args[ 1 ] )->get().c_str(), F_OK ) != -1 ? vm.tru : vm.fals;
@@ -98,23 +98,22 @@ var_base_t * fs_exists( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_open( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		src->fail( fd.idx, "expected string argument for file name, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for file name, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_STR ) {
-		src->fail( fd.idx, "expected string argument for file open mode, found: %s",
-			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for file open mode, found: %s",
+			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 	const std::string & file_name = STR( fd.args[ 1 ] )->get();
 	const std::string & mode = STR( fd.args[ 2 ] )->get();
 	FILE * file = fopen( file_name.c_str(), mode.c_str() );
 	if( !file ) {
-		src->fail( fd.idx, "failed to open file '%s' in mode: %s",
-			   file_name.c_str(), mode.c_str() );
+		vm.fail( fd.idx, "failed to open file '%s' in mode: %s",
+			 file_name.c_str(), mode.c_str() );
 		return nullptr;
 	}
 	return make< var_file_t >( file, mode );
@@ -142,16 +141,15 @@ var_base_t * fs_file_lines( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_file_seek( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	FILE * const file = FILE( fd.args[ 0 ] )->get();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		src->fail( fd.idx, "expected int argument for file seek position, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected int argument for file seek position, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_INT ) {
-		src->fail( fd.idx, "expected int argument for file seek origin, found: %s",
-			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected int argument for file seek origin, found: %s",
+			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 	long pos = INT( fd.args[ 1 ] )->get().get_si();
@@ -166,17 +164,16 @@ var_base_t * fs_file_each_line( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_file_read_blocks( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	FILE * const file = FILE( fd.args[ 0 ] )->get();
 
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		src->fail( fd.idx, "expected string argument for block begin location, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for block begin location, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_STR ) {
-		src->fail( fd.idx, "expected string argument for block end location, found: %s",
-			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for block end location, found: %s",
+			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 
@@ -237,21 +234,20 @@ var_base_t * fs_file_iterable_next( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_walkdir( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.current_source_file();
 	std::vector< var_base_t * > v;
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		src->fail( fd.idx, "expected string argument for directory name, found: %s",
-			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for directory name, found: %s",
+			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_INT ) {
-		src->fail( fd.idx, "expected int argument for walk mode, found: %s",
-			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected int argument for walk mode, found: %s",
+			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 3 ]->type() != VT_STR ) {
-		src->fail( fd.idx, "expected string argument for file regex, found: %s",
-			   vm.type_name( fd.args[ 2 ]->type() ).c_str() );
+		vm.fail( fd.idx, "expected string argument for file regex, found: %s",
+			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 	std::string dir_str = STR( fd.args[ 1 ] )->get();

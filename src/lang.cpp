@@ -24,13 +24,12 @@ var_base_t * create_struct( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * create_enum( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.current_source_file();
 	std::unordered_map< std::string, var_base_t * > attrs;
 
 	for( size_t i = 1; i < fd.args.size(); ++i ) {
 		auto & arg = fd.args[ i ];
 		if( arg->type() != VT_STR ) {
-			src_file->fail( arg->idx(), "expected const strings for enums (use strings or atoms)" );
+			vm.fail( arg->idx(), "expected const strings for enums (use strings or atoms)" );
 			goto fail;
 		}
 		attrs[ STR( arg )->get() ] = new var_int_t( i - 1, fd.src_id, fd.idx );
@@ -38,8 +37,8 @@ var_base_t * create_enum( vm_state_t & vm, const fn_data_t & fd )
 
 	for( auto & arg : fd.assn_args ) {
 		if( arg.val->type() != VT_INT ) {
-			src_file->fail( arg.idx, "expected argument value to be of integer for enums, found: %s",
-					vm.type_name( arg.val->type() ).c_str() );
+			vm.fail( arg.idx, "expected argument value to be of integer for enums, found: %s",
+				 vm.type_name( arg.val->type() ).c_str() );
 			goto fail;
 		}
 		if( attrs.find( arg.name ) != attrs.end() ) {
