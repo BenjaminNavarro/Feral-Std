@@ -23,7 +23,7 @@ INIT_MODULE( runtime )
 {
 	var_src_t * src = vm.current_source();
 
-	src->add_nativefn( "var_exists", var_exists, 1 );
+	src->add_native_fn( "var_exists", var_exists, 1 );
 
 	return true;
 }

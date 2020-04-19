@@ -53,12 +53,12 @@ var_base_t * feral_home_dir( vm_state_t & vm, const fn_data_t & fd )
 INIT_MODULE( sys )
 {
 	var_src_t * src = vm.current_source();
-	src->add_nativefn( "exit_native", _exit, 1 );
-	src->add_nativefn( "self_binary_loc_native", self_binary_loc );
-	src->add_nativefn( "src_args_native", src_args );
-	src->add_nativefn( "inc_load_loc_native", inc_load_loc );
-	src->add_nativefn( "dll_load_loc_native", dll_load_loc );
-	src->add_nativefn( "dll_core_load_loc_native", dll_core_load_loc );
-	src->add_nativefn( "feral_home_dir_native", feral_home_dir );
+	src->add_native_fn( "exit_native", _exit, 1 );
+	src->add_native_fn( "self_binary_loc_native", self_binary_loc );
+	src->add_native_fn( "src_args_native", src_args );
+	src->add_native_fn( "inc_load_loc_native", inc_load_loc );
+	src->add_native_fn( "dll_load_loc_native", dll_load_loc );
+	src->add_native_fn( "dll_core_load_loc_native", dll_core_load_loc );
+	src->add_native_fn( "feral_home_dir_native", feral_home_dir );
 	return true;
 }

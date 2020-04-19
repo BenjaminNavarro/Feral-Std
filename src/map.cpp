@@ -160,22 +160,22 @@ INIT_MODULE( map )
 {
 	var_src_t * src = vm.current_source();
 
-	src->add_nativefn( "new", map_new, 0, true );
+	src->add_native_fn( "new", map_new, 0, true );
 
-	vm.add_typefn_native( VT_MAP,    "len", map_size,   0, src_id, idx );
-	vm.add_typefn_native( VT_MAP, "insert", map_insert, 2, src_id, idx );
-	vm.add_typefn_native( VT_MAP,  "erase", map_erase,  1, src_id, idx );
-	vm.add_typefn_native( VT_MAP,    "get", map_get,    1, src_id, idx );
-	vm.add_typefn_native( VT_MAP,     "[]", map_get,    1, src_id, idx );
-	vm.add_typefn_native( VT_MAP,   "find", map_find,   1, src_id, idx );
-	vm.add_typefn_native( VT_MAP,   "each", map_each,   0, src_id, idx );
+	vm.add_native_typefn( VT_MAP,    "len", map_size,   0, src_id, idx );
+	vm.add_native_typefn( VT_MAP, "insert", map_insert, 2, src_id, idx );
+	vm.add_native_typefn( VT_MAP,  "erase", map_erase,  1, src_id, idx );
+	vm.add_native_typefn( VT_MAP,    "get", map_get,    1, src_id, idx );
+	vm.add_native_typefn( VT_MAP,     "[]", map_get,    1, src_id, idx );
+	vm.add_native_typefn( VT_MAP,   "find", map_find,   1, src_id, idx );
+	vm.add_native_typefn( VT_MAP,   "each", map_each,   0, src_id, idx );
 
 	// get the type id for map iterable and map iterator element (register_type)
 	map_iterable_typeid = vm.register_new_type( "map_iterable_t", src_id, idx );
 	map_iterable_element_struct_id = vm.register_struct_enum_id();
 	vm.set_typename( map_iterable_element_struct_id, "map_iterable_element_t" );
 
-	vm.add_typefn_native( map_iterable_typeid, "next", map_iterable_next, 0, src_id, idx );
+	vm.add_native_typefn( map_iterable_typeid, "next", map_iterable_next, 0, src_id, idx );
 
 	return true;
 }

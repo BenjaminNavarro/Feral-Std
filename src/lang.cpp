@@ -58,7 +58,7 @@ fail:
 INIT_MODULE( lang )
 {
 	var_src_t * src = vm.current_source();
-	src->add_nativefn( "enum", create_enum, 0, true );
-	src->add_nativefn( "struct", create_struct );
+	src->add_native_fn( "enum", create_enum, 0, true );
+	src->add_native_fn( "struct", create_struct );
 	return true;
 }

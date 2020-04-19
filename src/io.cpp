@@ -195,21 +195,21 @@ INIT_MODULE( io )
 {
 	var_src_t * src = vm.current_source();
 
-	src->add_nativefn( "print", print, 1, true );
-	src->add_nativefn( "println", println, 0, true );
-	src->add_nativefn( "fprint", fprint, 2, true );
-	src->add_nativefn( "fprintln", fprintln, 1, true );
-	src->add_nativefn( "cprint", col_print, 1, true );
-	src->add_nativefn( "cprintln", col_println, 0, true );
-	src->add_nativefn( "cdprint", col_dprint, 1, true );
-	src->add_nativefn( "cdprintln", col_dprintln, 0, true );
-	src->add_nativefn( "scan_native", scan, 1 );
-	src->add_nativefn( "scaneof_native", scaneof, 1 );
-	src->add_nativefn( "fflush", fflush, 1 );
+	src->add_native_fn( "print", print, 1, true );
+	src->add_native_fn( "println", println, 0, true );
+	src->add_native_fn( "fprint", fprint, 2, true );
+	src->add_native_fn( "fprintln", fprintln, 1, true );
+	src->add_native_fn( "cprint", col_print, 1, true );
+	src->add_native_fn( "cprintln", col_println, 0, true );
+	src->add_native_fn( "cdprint", col_dprint, 1, true );
+	src->add_native_fn( "cdprintln", col_dprintln, 0, true );
+	src->add_native_fn( "scan_native", scan, 1 );
+	src->add_native_fn( "scaneof_native", scaneof, 1 );
+	src->add_native_fn( "fflush", fflush, 1 );
 
 	// stdout and stderr cannot be owned by a var_file_t
-	src->add_nativevar( "stdout", make_all< var_file_t >( stdout, "w", src_id, idx, false ) );
-	src->add_nativevar( "stderr", make_all< var_file_t >( stderr, "w", src_id, idx, false ) );
+	src->add_native_var( "stdout", make_all< var_file_t >( stdout, "w", src_id, idx, false ) );
+	src->add_native_var( "stderr", make_all< var_file_t >( stderr, "w", src_id, idx, false ) );
 	return true;
 }
 

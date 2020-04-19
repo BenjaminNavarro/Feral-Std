@@ -266,26 +266,26 @@ INIT_MODULE( fs )
 	// get the type id for file_iterable type (register_type)
 	file_iterable_typeid = vm.register_new_type( "file_iterable_t", src_id, idx );
 
-	src->add_nativefn( "exists", fs_exists, 1 );
-	src->add_nativefn( "open_native", fs_open, 2 );
-	src->add_nativefn( "walkdir_native", fs_walkdir, 3 );
+	src->add_native_fn( "exists", fs_exists, 1 );
+	src->add_native_fn( "open_native", fs_open, 2 );
+	src->add_native_fn( "walkdir_native", fs_walkdir, 3 );
 
-	vm.add_typefn_native( VT_FILE, "lines", fs_file_lines, 0, src_id, idx );
-	vm.add_typefn_native( VT_FILE, "each_line", fs_file_each_line, 0, src_id, idx );
-	vm.add_typefn_native( VT_FILE, "read_blocks", fs_file_read_blocks, 2, src_id, idx );
+	vm.add_native_typefn( VT_FILE, "lines", fs_file_lines, 0, src_id, idx );
+	vm.add_native_typefn( VT_FILE, "each_line", fs_file_each_line, 0, src_id, idx );
+	vm.add_native_typefn( VT_FILE, "read_blocks", fs_file_read_blocks, 2, src_id, idx );
 
-	vm.add_typefn_native( VT_FILE, "seek", fs_file_seek, 2, src_id, idx );
+	vm.add_native_typefn( VT_FILE, "seek", fs_file_seek, 2, src_id, idx );
 
-	vm.add_typefn_native( file_iterable_typeid, "next", fs_file_iterable_next, 0, src_id, idx );
+	vm.add_native_typefn( file_iterable_typeid, "next", fs_file_iterable_next, 0, src_id, idx );
 
 	// constants
-	src->add_nativevar( "WALK_FILES", make_all< var_int_t >( WalkEntry::FILES, src_id, idx ) );
-	src->add_nativevar( "WALK_DIRS", make_all< var_int_t >( WalkEntry::DIRS, src_id, idx ) );
-	src->add_nativevar( "WALK_RECURSE", make_all< var_int_t >( WalkEntry::RECURSE, src_id, idx ) );
+	src->add_native_var( "WALK_FILES", make_all< var_int_t >( WalkEntry::FILES, src_id, idx ) );
+	src->add_native_var( "WALK_DIRS", make_all< var_int_t >( WalkEntry::DIRS, src_id, idx ) );
+	src->add_native_var( "WALK_RECURSE", make_all< var_int_t >( WalkEntry::RECURSE, src_id, idx ) );
 
-	src->add_nativevar( "SEEK_SET", make_all< var_int_t >( SEEK_SET, src_id, idx ) );
-	src->add_nativevar( "SEEK_CUR", make_all< var_int_t >( SEEK_CUR, src_id, idx ) );
-	src->add_nativevar( "SEEK_END", make_all< var_int_t >( SEEK_END, src_id, idx ) );
+	src->add_native_var( "SEEK_SET", make_all< var_int_t >( SEEK_SET, src_id, idx ) );
+	src->add_native_var( "SEEK_CUR", make_all< var_int_t >( SEEK_CUR, src_id, idx ) );
+	src->add_native_var( "SEEK_END", make_all< var_int_t >( SEEK_END, src_id, idx ) );
 
 	return true;
 }

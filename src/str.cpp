@@ -170,22 +170,22 @@ INIT_MODULE( str )
 {
 	var_src_t * src = vm.current_source();
 
-	vm.add_typefn_native( VT_STR,     "len", str_size,   0, src_id, idx );
-	vm.add_typefn_native( VT_STR,   "empty", str_empty,  0, src_id, idx );
-	vm.add_typefn_native( VT_STR,   "front", str_front,  0, src_id, idx );
-	vm.add_typefn_native( VT_STR,    "back", str_back,   0, src_id, idx );
-	vm.add_typefn_native( VT_STR,    "push", str_push,   1, src_id, idx );
-	vm.add_typefn_native( VT_STR,     "pop", str_pop,    0, src_id, idx );
-	vm.add_typefn_native( VT_STR,  "insert", str_insert, 2, src_id, idx );
-	vm.add_typefn_native( VT_STR,   "erase", str_erase,  1, src_id, idx );
-	vm.add_typefn_native( VT_STR, "lastidx", str_last,   0, src_id, idx );
-	vm.add_typefn_native( VT_STR,     "set", str_setat,  2, src_id, idx );
+	vm.add_native_typefn( VT_STR,     "len", str_size,   0, src_id, idx );
+	vm.add_native_typefn( VT_STR,   "empty", str_empty,  0, src_id, idx );
+	vm.add_native_typefn( VT_STR,   "front", str_front,  0, src_id, idx );
+	vm.add_native_typefn( VT_STR,    "back", str_back,   0, src_id, idx );
+	vm.add_native_typefn( VT_STR,    "push", str_push,   1, src_id, idx );
+	vm.add_native_typefn( VT_STR,     "pop", str_pop,    0, src_id, idx );
+	vm.add_native_typefn( VT_STR,  "insert", str_insert, 2, src_id, idx );
+	vm.add_native_typefn( VT_STR,   "erase", str_erase,  1, src_id, idx );
+	vm.add_native_typefn( VT_STR, "lastidx", str_last,   0, src_id, idx );
+	vm.add_native_typefn( VT_STR,     "set", str_setat,  2, src_id, idx );
 
-	vm.add_typefn_native( VT_STR,  "trim", str_trim, 0, src_id, idx );
-	vm.add_typefn_native( VT_STR, "split_native", str_split, 1, src_id, idx );
+	vm.add_native_typefn( VT_STR,  "trim", str_trim, 0, src_id, idx );
+	vm.add_native_typefn( VT_STR, "split_native", str_split, 1, src_id, idx );
 
-	vm.add_typefn_native( VT_STR, "c_to_i", c_to_i, 0, src_id, idx );
-	vm.add_typefn_native( VT_INT, "i_to_c", i_to_c, 0, src_id, idx );
+	vm.add_native_typefn( VT_STR, "c_to_i", c_to_i, 0, src_id, idx );
+	vm.add_native_typefn( VT_INT, "i_to_c", i_to_c, 0, src_id, idx );
 
 	return true;
 }

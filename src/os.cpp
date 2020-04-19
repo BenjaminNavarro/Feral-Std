@@ -272,25 +272,25 @@ INIT_MODULE( os )
 {
 	var_src_t * src = vm.current_source();
 
-	src->add_nativefn( "sleep", sleep_custom, 1 );
+	src->add_native_fn( "sleep", sleep_custom, 1 );
 
-	src->add_nativefn( "get_env", get_env, 1 );
-	src->add_nativefn( "set_env_native", set_env, 3 );
+	src->add_native_fn( "get_env", get_env, 1 );
+	src->add_native_fn( "set_env_native", set_env, 3 );
 
-	src->add_nativefn( "exec", exec_custom, 1 );
-	src->add_nativefn( "install", install, 2 );
+	src->add_native_fn( "exec", exec_custom, 1 );
+	src->add_native_fn( "install", install, 2 );
 
-	src->add_nativefn( "os_get_name_native", os_get_name );
+	src->add_native_fn( "os_get_name_native", os_get_name );
 
-	src->add_nativefn( "get_cwd", os_get_cwd );
-	src->add_nativefn( "set_cwd", os_set_cwd, 1 );
+	src->add_native_fn( "get_cwd", os_get_cwd );
+	src->add_native_fn( "set_cwd", os_set_cwd, 1 );
 
-	src->add_nativefn( "mkdir", os_mkdir, 1, true );
-	src->add_nativefn( "rm", os_rm, 1, true );
+	src->add_native_fn( "mkdir", os_mkdir, 1, true );
+	src->add_native_fn( "rm", os_rm, 1, true );
 
-	src->add_nativefn( "copy", os_copy, 2, true );
+	src->add_native_fn( "copy", os_copy, 2, true );
 
-	src->add_nativefn( "chmod_native", os_chmod, 3 );
+	src->add_native_fn( "chmod_native", os_chmod, 3 );
 
 	return true;
 }
