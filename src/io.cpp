@@ -15,7 +15,7 @@ int apply_colors( std::string & str );
 
 var_base_t * print( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	for( size_t i = 1; i < fd.args.size(); ++i ) {
 		std::string str;
 		if( !fd.args[ i ]->to_str( vm, str, fd.src_id, fd.idx ) ) {
@@ -28,7 +28,7 @@ var_base_t * print( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * println( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	for( size_t i = 1; i < fd.args.size(); ++i ) {
 		std::string str;
 		if( !fd.args[ i ]->to_str( vm, str, fd.src_id, fd.idx ) ) {
@@ -42,7 +42,7 @@ var_base_t * println( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fprint( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_FILE ) {
 		src->fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
 			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -65,7 +65,7 @@ var_base_t * fprint( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fprintln( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_FILE ) {
 		src->fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
 			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -143,7 +143,7 @@ var_base_t * col_dprintln( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * scan( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_STR ) {
 		src->fail( fd.args[ 1 ]->idx(), "expected string data for input prompt, found: %s",
 			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -163,7 +163,7 @@ var_base_t * scan( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * scaneof( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_STR ) {
 		src->fail( fd.args[ 1 ]->idx(), "expected string data for input prompt, found: %s",
 			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -183,7 +183,7 @@ var_base_t * scaneof( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fflush( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_FILE ) {
 		src->fail( fd.args[ 1 ]->idx(), "expected a file argument for fflush, found: %s",
 			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -200,7 +200,7 @@ var_base_t * fflush( vm_state_t & vm, const fn_data_t & fd )
 
 INIT_MODULE( io )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 
 	src->add_nativefn( "print", print, 1, true );
 	src->add_nativefn( "println", println, 0, true );

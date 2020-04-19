@@ -89,7 +89,7 @@ bool var_file_iterable_t::next( var_base_t * & val )
 var_base_t * fs_exists( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for path, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for path, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -98,7 +98,7 @@ var_base_t * fs_exists( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_open( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_STR ) {
 		src->fail( fd.idx, "expected string argument for file name, found: %s",
 			   vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -142,7 +142,7 @@ var_base_t * fs_file_lines( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_file_seek( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	FILE * const file = FILE( fd.args[ 0 ] )->get();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src->fail( fd.idx, "expected int argument for file seek position, found: %s",
@@ -166,7 +166,7 @@ var_base_t * fs_file_each_line( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_file_read_blocks( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	FILE * const file = FILE( fd.args[ 0 ] )->get();
 
 	if( fd.args[ 1 ]->type() != VT_STR ) {
@@ -237,7 +237,7 @@ var_base_t * fs_file_iterable_next( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * fs_walkdir( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	std::vector< var_base_t * > v;
 	if( fd.args[ 1 ]->type() != VT_STR ) {
 		src->fail( fd.idx, "expected string argument for directory name, found: %s",
@@ -265,7 +265,7 @@ var_base_t * fs_walkdir( vm_state_t & vm, const fn_data_t & fd )
 
 INIT_MODULE( fs )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 
 	// get the type id for file_iterable type (register_type)
 	file_iterable_typeid = vm.register_new_type( "file_iterable_t", src_id, idx );

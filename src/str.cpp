@@ -43,7 +43,7 @@ var_base_t * str_back( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * str_push( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for string.push(), found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for string.push(), found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -62,7 +62,7 @@ var_base_t * str_pop( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * str_setat( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected first argument to be of type integer for string.set(), found: %s",
 				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -88,7 +88,7 @@ var_base_t * str_setat( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * str_insert( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected first argument to be of type integer for string.insert(), found: %s",
 				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -113,7 +113,7 @@ var_base_t * str_insert( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * str_erase( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
 				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -141,12 +141,12 @@ var_base_t * str_split( vm_state_t & vm, const fn_data_t & fd )
 {
 	var_str_t * str = STR( fd.args[ 0 ] );
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for delimiter, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for delimiter, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( STR( fd.args[ 1 ] )->get().size() == 0 ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "found empty delimiter for string split" );
+		vm.current_source_file()->fail( fd.idx, "found empty delimiter for string split" );
 		return nullptr;
 	}
 	char delim = STR( fd.args[ 1 ] )->get()[ 0 ];
@@ -171,7 +171,7 @@ var_base_t * i_to_c( vm_state_t & vm, const fn_data_t & fd )
 
 INIT_MODULE( str )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 
 	vm.add_typefn_native( VT_STR,     "len", str_size,   0, src_id, idx );
 	vm.add_typefn_native( VT_STR,   "empty", str_empty,  0, src_id, idx );

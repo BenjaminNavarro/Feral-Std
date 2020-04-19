@@ -84,7 +84,7 @@ var_base_t * ptr_get( vm_state_t & vm, const fn_data_t & fd )
 
 INIT_MODULE( ptr )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 	src->add_nativefn( "new_native", ptr_new_native, 1 );
 
 	// get the type id for file_iterable type (register_type)

@@ -22,7 +22,7 @@ std::string dir_part( const std::string & full_loc );
 var_base_t * sleep_custom( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_INT ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected integer argument for sleep time, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected integer argument for sleep time, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -35,7 +35,7 @@ var_base_t * sleep_custom( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * get_env( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for env variable name, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for env variable name, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -47,17 +47,17 @@ var_base_t * get_env( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * set_env( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for env variable name, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for env variable name, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for env variable value, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for env variable value, found: %s",
 						  vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 3 ]->type() != VT_BOOL ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected boolean argument for overwrite existing env variable, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected boolean argument for overwrite existing env variable, found: %s",
 						  vm.type_name( fd.args[ 3 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -71,7 +71,7 @@ var_base_t * set_env( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * exec_custom( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for command, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for command, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -96,12 +96,12 @@ var_base_t * exec_custom( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * install( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for source, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for source, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for destination, found: %s",
 						  vm.type_name( fd.args[ 2 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -147,7 +147,7 @@ var_base_t * os_get_cwd( vm_state_t & vm, const fn_data_t & fd )
 {
 	char cwd[ PATH_MAX ];
 	if( getcwd( cwd, PATH_MAX ) == NULL ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "getcwd() failed - internal error" );
+		vm.current_source_file()->fail( fd.idx, "getcwd() failed - internal error" );
 		return nullptr;
 	}
 	return make< var_str_t >( cwd );
@@ -156,7 +156,7 @@ var_base_t * os_get_cwd( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * os_set_cwd( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination directory, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for destination directory, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -166,7 +166,7 @@ var_base_t * os_set_cwd( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * os_mkdir( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination directory, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for destination directory, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -174,7 +174,7 @@ var_base_t * os_mkdir( vm_state_t & vm, const fn_data_t & fd )
 
 	for( size_t i = 2; i < fd.args.size(); ++i ) {
 		if( fd.args[ i ]->type() != VT_STR ) {
-			vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination directory, found: %s",
+			vm.current_source_file()->fail( fd.idx, "expected string argument for destination directory, found: %s",
 							  vm.type_name( fd.args[ i ]->type() ).c_str() );
 			return nullptr;
 		}
@@ -188,7 +188,7 @@ var_base_t * os_mkdir( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * os_rm( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination directory, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for destination directory, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -196,7 +196,7 @@ var_base_t * os_rm( vm_state_t & vm, const fn_data_t & fd )
 
 	for( size_t i = 2; i < fd.args.size(); ++i ) {
 		if( fd.args[ i ]->type() != VT_STR ) {
-			vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination directory, found: %s",
+			vm.current_source_file()->fail( fd.idx, "expected string argument for destination directory, found: %s",
 							  vm.type_name( fd.args[ i ]->type() ).c_str() );
 			return nullptr;
 		}
@@ -213,7 +213,7 @@ var_base_t * os_rm( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * os_copy( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for source, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for source, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -222,7 +222,7 @@ var_base_t * os_copy( vm_state_t & vm, const fn_data_t & fd )
 	// last element is the destination
 	for( size_t i = 2; i < fd.args.size() - 1; ++i ) {
 		if( fd.args[ i ]->type() != VT_STR ) {
-			vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination directory, found: %s",
+			vm.current_source_file()->fail( fd.idx, "expected string argument for destination directory, found: %s",
 							  vm.type_name( fd.args[ i ]->type() ).c_str() );
 			return nullptr;
 		}
@@ -232,7 +232,7 @@ var_base_t * os_copy( vm_state_t & vm, const fn_data_t & fd )
 	}
 
 	if( fd.args[ fd.args.size() - 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for source, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for source, found: %s",
 						  vm.type_name( fd.args[ fd.args.size() - 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -245,17 +245,17 @@ var_base_t * os_copy( vm_state_t & vm, const fn_data_t & fd )
 var_base_t * os_chmod( vm_state_t & vm, const fn_data_t & fd )
 {
 	if( fd.args[ 1 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for destination, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for destination, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 2 ]->type() != VT_STR ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected string argument for mode, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected string argument for mode, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
 	if( fd.args[ 3 ]->type() != VT_BOOL ) {
-		vm.src_stack.back()->src()->fail( fd.idx, "expected boolean argument for recursive, found: %s",
+		vm.current_source_file()->fail( fd.idx, "expected boolean argument for recursive, found: %s",
 						  vm.type_name( fd.args[ 1 ]->type() ).c_str() );
 		return nullptr;
 	}
@@ -270,7 +270,7 @@ var_base_t * os_chmod( vm_state_t & vm, const fn_data_t & fd )
 
 INIT_MODULE( os )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 
 	src->add_nativefn( "sleep", sleep_custom, 1 );
 

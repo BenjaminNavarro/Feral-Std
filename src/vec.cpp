@@ -107,7 +107,7 @@ var_base_t * vec_push( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_pop( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	std::vector< var_base_t * > & vec = VEC( fd.args[ 0 ] )->get();
 	if( vec.empty() ) {
 		src_file->fail( fd.idx, "performed pop() on an empty vector" );
@@ -120,7 +120,7 @@ var_base_t * vec_pop( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_setat( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected first argument to be of type integer for vec.set(), found: %s",
 				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -141,7 +141,7 @@ var_base_t * vec_setat( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_insert( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected first argument to be of type integer for string.insert(), found: %s",
 				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -161,7 +161,7 @@ var_base_t * vec_insert( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_erase( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
 				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -186,7 +186,7 @@ var_base_t * vec_last( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_at( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected argument to be of type integer for string.erase(), found: %s",
 				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -208,7 +208,7 @@ var_base_t * vec_iterable_next( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * vec_slice( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected starting index to be of type 'int' for vec.slice(), found: %s",
 				vm.type_name( fd.args[ 1 ]->type() ).c_str() );
@@ -235,7 +235,7 @@ var_base_t * vec_slice( vm_state_t & vm, const fn_data_t & fd )
 
 INIT_MODULE( vec )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 
 	src->add_nativefn( "new", vec_new, 0, true );
 

@@ -11,7 +11,7 @@
 
 var_base_t * create_struct( vm_state_t & vm, const fn_data_t & fd )
 {
-	const size_t src_id = vm.src_stack.back()->src_id();
+	const size_t src_id = vm.current_source()->src_id();
 	std::vector< std::string > attr_order;
 	std::unordered_map< std::string, var_base_t * > attrs;
 	for( size_t i = 0; i < fd.assn_args.size(); ++i ) {
@@ -24,7 +24,7 @@ var_base_t * create_struct( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * create_enum( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	std::unordered_map< std::string, var_base_t * > attrs;
 
 	for( size_t i = 1; i < fd.args.size(); ++i ) {
@@ -58,7 +58,7 @@ fail:
 
 INIT_MODULE( lang )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 	src->add_nativefn( "enum", create_enum, 0, true );
 	src->add_nativefn( "struct", create_struct );
 	return true;

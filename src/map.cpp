@@ -69,7 +69,7 @@ bool var_map_iterable_t::next( var_base_t * & val, const size_t & src_id, const 
 
 var_base_t * map_new( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	if( ( fd.args.size() - 1 ) % 2 != 0 ) {
 		src->fail( fd.idx, "argument count must be even to create a map" );
 		return nullptr;
@@ -93,7 +93,7 @@ var_base_t * map_size( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * map_insert( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	std::unordered_map< std::string, var_base_t * > & map = MAP( fd.args[ 0 ] )->get();
 	std::string key;
 	if( !fd.args[ 1 ]->to_str( vm, key, fd.src_id, fd.idx ) ) {
@@ -109,7 +109,7 @@ var_base_t * map_insert( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * map_erase( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	std::unordered_map< std::string, var_base_t * > & map = MAP( fd.args[ 0 ] )->get();
 	std::string key;
 	if( !fd.args[ 1 ]->to_str( vm, key, fd.src_id, fd.idx ) ) {
@@ -125,7 +125,7 @@ var_base_t * map_erase( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * map_get( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	std::unordered_map< std::string, var_base_t * > & map = MAP( fd.args[ 0 ] )->get();
 	std::string key;
 	if( !fd.args[ 1 ]->to_str( vm, key, fd.src_id, fd.idx ) ) {
@@ -139,7 +139,7 @@ var_base_t * map_get( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * map_find( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src = vm.src_stack.back()->src();
+	srcfile_t * src = vm.current_source_file();
 	std::unordered_map< std::string, var_base_t * > & map = MAP( fd.args[ 0 ] )->get();
 	std::string key;
 	if( !fd.args[ 1 ]->to_str( vm, key, fd.src_id, fd.idx ) ) {
@@ -163,7 +163,7 @@ var_base_t * map_iterable_next( vm_state_t & vm, const fn_data_t & fd )
 
 INIT_MODULE( map )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 
 	src->add_nativefn( "new", map_new, 0, true );
 

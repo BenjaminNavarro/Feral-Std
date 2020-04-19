@@ -11,7 +11,7 @@
 
 var_base_t * _exit( vm_state_t & vm, const fn_data_t & fd )
 {
-	srcfile_t * src_file = vm.src_stack.back()->src();
+	srcfile_t * src_file = vm.current_source_file();
 	vm.exit_called = true;
 	if( fd.args[ 1 ]->type() != VT_INT ) {
 		src_file->fail( fd.idx, "expected integer for exit function parameter - exit code" );
@@ -53,7 +53,7 @@ var_base_t * feral_home_dir( vm_state_t & vm, const fn_data_t & fd )
 
 INIT_MODULE( sys )
 {
-	var_src_t * src = vm.src_stack.back();
+	var_src_t * src = vm.current_source();
 	src->add_nativefn( "exit_native", _exit, 1 );
 	src->add_nativefn( "self_binary_loc_native", self_binary_loc );
 	src->add_nativefn( "src_args_native", src_args );
