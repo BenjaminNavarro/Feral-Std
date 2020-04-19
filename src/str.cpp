@@ -12,7 +12,42 @@
 std::vector< var_base_t * > _str_split( const std::string & data, const char delim,
 					const size_t & src_id, const size_t & idx );
 
-static inline void trim( std::string & s );
+static inline void trim( std::string & s ); 
+
+template<std::size_t I = 0, typename... Tp>
+inline typename std::enable_if<I == sizeof...(Tp), void>::type
+check_args(std::tuple<Tp...>& t, vm_state_t & vm, const fn_data_t & fd, bool& error)
+{ 
+}
+
+template<std::size_t I = 0, typename... Tp>
+inline typename std::enable_if<I < sizeof...(Tp), void>::type
+check_args(std::tuple<Tp...>& t, vm_state_t & vm, const fn_data_t & fd, bool& error)
+{
+	auto& expected_arg = std::get<I>(t);
+	auto arg = fd.args[I + 1];
+	using expected_type = typename std::tuple_element<I, std::tuple<Tp...>>::type;
+	expected_arg = dynamic_cast<expected_type>(arg);
+	if(expected_arg == nullptr) {
+		vm.src_stack.back()->src()->fail( fd.idx, "incorrect %s argument at position %ld",
+						  vm.type_name( fd.args[ 1 ]->type() ).c_str(), I);
+		error = true;
+	}
+	check_args<I + 1, Tp...>(t, vm, fd, error);
+}
+
+template<typename... Params>
+bool get_args( vm_state_t & vm, const fn_data_t & fd, std::tuple<Params...>& params) {
+	using TupleT = std::tuple<Params...>;
+	if(std::tuple_size<TupleT>::value != fd.args.size() - 1) {
+		vm.src_stack.back()->src()->fail( fd.idx, "incorrect number of arguments. Expecting %ld, got %ld",
+						  std::tuple_size<TupleT>::value, fd.args.size() - 1);
+		return true;
+	}
+	bool error = false;
+	check_args(params, vm, fd, error);
+	return error;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////// Functions /////////////////////////////////////////////////////////////////
@@ -62,24 +97,18 @@ var_base_t * str_pop( vm_state_t & vm, const fn_data_t & fd )
 
 var_base_t * str_setat( vm_state_t & vm, const fn_data_t & fd )
 {
-	if( fd.args[ 1 ]->type() != VT_INT ) {
-		vm.fail( fd.idx, "expected first argument to be of type integer for string.set(), found: %s",
-			 vm.type_name( fd.args[ 1 ]->type() ).c_str() );
+	auto args = std::tuple<var_int_t*, var_str_t*>();
+	if(get_args(vm, fd, args)) {
 		return nullptr;
 	}
-	if( fd.args[ 2 ]->type() != VT_STR ) {
-		vm.fail( fd.idx, "expected second argument to be of type string for string.set(), found: %s",
-			 vm.type_name( fd.args[ 2 ]->type() ).c_str() );
-		return nullptr;
-	}
-	size_t pos = INT( fd.args[ 1 ] )->get().get_ui();
+	size_t pos = std::get<0>(args)->get().get_ui();
 	std::string & dest = STR( fd.args[ 0 ] )->get();
 	if( pos >= dest.size() ) {
 		vm.fail( fd.idx, "position %zu is not within string of length %zu",
 			 pos, dest.size() );
 		return nullptr;
 	}
-	std::string & src = STR( fd.args[ 2 ] )->get();
+	std::string & src = std::get<1>(args)->get();
 	if( src.size() == 0 ) return fd.args[ 0 ];
 	dest[ pos ] = src[ 0 ];
 	return fd.args[ 0 ];
